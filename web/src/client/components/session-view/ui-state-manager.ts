@@ -9,7 +9,10 @@
  * - Terminal dimensions
  */
 
+import { createLogger } from '../../utils/logger.js';
 import type { TerminalThemeId } from '../../utils/terminal-themes.js';
+
+const logger = createLogger('ui-state-manager');
 
 export interface UIState {
   // Connection state
@@ -19,7 +22,9 @@ export interface UIState {
   // Mobile states
   isMobile: boolean;
   isLandscape: boolean;
+  showMobileInput: boolean;
   showQuickKeys: boolean;
+  useDirectKeyboard: boolean;
   keyboardHeight: number;
 
   // Touch tracking
@@ -70,7 +75,9 @@ export class UIStateManager {
     // Mobile states
     isMobile: false,
     isLandscape: false,
+    showMobileInput: false,
     showQuickKeys: false,
+    useDirectKeyboard: true,
     keyboardHeight: 0,
 
     // Touch tracking
@@ -143,6 +150,11 @@ export class UIStateManager {
 
   setShowQuickKeys(show: boolean): void {
     this.state.showQuickKeys = show;
+    this.callbacks?.requestUpdate();
+  }
+
+  setShowMobileInput(show: boolean): void {
+    this.state.showMobileInput = show;
     this.callbacks?.requestUpdate();
   }
 
@@ -270,6 +282,24 @@ export class UIStateManager {
       logger.error('Failed to load app preferences', error);
       this.state.useDirectKeyboard = true; // Default to true on error
     }
+  }
+
+  toggleDirectKeyboard(): void {
+    this.state.useDirectKeyboard = !this.state.useDirectKeyboard;
+    this.state.showMobileInput = false;
+
+    try {
+      const stored = localStorage.getItem('vibetunnel_app_preferences');
+      const preferences = stored ? JSON.parse(stored) : {};
+      localStorage.setItem(
+        'vibetunnel_app_preferences',
+        JSON.stringify({ ...preferences, useDirectKeyboard: this.state.useDirectKeyboard })
+      );
+    } catch (error) {
+      logger.warn('Failed to save app preferences', error);
+    }
+
+    this.callbacks?.requestUpdate();
   }
 
   // Chat mode

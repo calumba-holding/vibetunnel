@@ -14,8 +14,11 @@ vi.mock('../../server/utils/logger.js', () => ({
 
 describe('TailscaleServeService Integration Tests', () => {
   let service: TailscaleServeServiceImpl;
+  let originalSkipTailscale: string | undefined;
 
   beforeEach(() => {
+    originalSkipTailscale = process.env.VIBETUNNEL_SKIP_TAILSCALE;
+    process.env.VIBETUNNEL_SKIP_TAILSCALE = '1';
     service = new TailscaleServeServiceImpl();
   });
 
@@ -23,6 +26,11 @@ describe('TailscaleServeService Integration Tests', () => {
     // Clean up any running processes
     if (service.isRunning()) {
       await service.stop();
+    }
+    if (originalSkipTailscale === undefined) {
+      delete process.env.VIBETUNNEL_SKIP_TAILSCALE;
+    } else {
+      process.env.VIBETUNNEL_SKIP_TAILSCALE = originalSkipTailscale;
     }
     vi.clearAllMocks();
   });

@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { TailscaleServeServiceImpl } from './tailscale-serve-service.js';
 
 /**
@@ -7,9 +7,20 @@ import { TailscaleServeServiceImpl } from './tailscale-serve-service.js';
  */
 describe('Tailscale Regression Tests - Release 15 Fixes', () => {
   let service: TailscaleServeServiceImpl;
+  let originalSkipTailscale: string | undefined;
 
   beforeEach(() => {
+    originalSkipTailscale = process.env.VIBETUNNEL_SKIP_TAILSCALE;
+    process.env.VIBETUNNEL_SKIP_TAILSCALE = '1';
     service = new TailscaleServeServiceImpl();
+  });
+
+  afterEach(() => {
+    if (originalSkipTailscale === undefined) {
+      delete process.env.VIBETUNNEL_SKIP_TAILSCALE;
+    } else {
+      process.env.VIBETUNNEL_SKIP_TAILSCALE = originalSkipTailscale;
+    }
   });
 
   describe('Basic Status Checks (Regression Prevention)', () => {

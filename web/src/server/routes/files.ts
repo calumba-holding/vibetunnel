@@ -192,10 +192,12 @@ export function createFileRoutes(): Router {
   // Delete uploaded file
   router.delete('/files/:filename', async (req: AuthenticatedRequest, res) => {
     try {
-      const filename = req.params.filename;
+      const filenameParam = req.params.filename;
+      const filename = Array.isArray(filenameParam) ? filenameParam[0] : filenameParam;
 
       // Security check: ensure filename doesn't contain path traversal
       if (
+        !filename ||
         filename.includes('..') ||
         filename.includes('/') ||
         filename.includes('\\') ||

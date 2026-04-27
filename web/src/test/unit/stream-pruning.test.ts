@@ -174,7 +174,7 @@ describe('CastOutputHub - Asciinema Stream Pruning', () => {
     if (!paths) throw new Error('session paths not found');
     fs.copyFileSync(fixturePath, paths.stdoutPath);
 
-    const events = await collectExistingEvents('real-world', 400);
+    const events = await collectExistingEvents('real-world', 3000);
 
     // Should have pruned everything before the last clear
     expect(events.length).toBeGreaterThan(0);

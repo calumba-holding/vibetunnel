@@ -39,6 +39,7 @@ export interface DirectKeyboardCallbacks {
   getDisableFocusManagement(): boolean;
   getVisualViewportHandler(): (() => void) | null;
   getKeyboardHeight(): number;
+  getShowMobileInput(): boolean;
   setKeyboardHeight(height: number): void;
   updateShowQuickKeys(value: boolean): void;
   toggleCtrlAlpha(): void;

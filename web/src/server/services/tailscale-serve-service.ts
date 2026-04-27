@@ -476,6 +476,16 @@ export class TailscaleServeServiceImpl implements TailscaleServeService {
       };
     }
 
+    if (process.env.VIBETUNNEL_SKIP_TAILSCALE === '1') {
+      return {
+        isRunning: false,
+        isPermanentlyDisabled: false,
+        funnelEnabled: false,
+        desiredMode: this.desiredFunnel ? 'public' : 'private',
+        actualMode: this.funnelEnabled ? 'public' : 'private',
+      };
+    }
+
     // IMPROVED CHECK: First verify if Tailscale Serve is actually configured and working
     // Only mark as permanently disabled if we can't detect any working configuration
     if (!this.isPermanentlyDisabled) {

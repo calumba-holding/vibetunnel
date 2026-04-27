@@ -539,13 +539,14 @@ describe('SessionView', () => {
       expect(mobileActionBar).toBeTruthy();
     });
 
-    it('should hide floating keyboard button when quick keys are visible', async () => {
+    it('should keep floating keyboard button available when quick keys are visible', async () => {
       const testElement = element as SessionViewTestInterface;
       testElement.uiStateManager.setShowQuickKeys(true);
       await element.updateComplete;
 
       const keyboardButton = element.querySelector('.mobile-keyboard-button');
-      expect(keyboardButton).toBeNull();
+      expect(keyboardButton).toBeTruthy();
+      expect(keyboardButton?.classList.contains('quick-keys-visible')).toBe(true);
     });
   });
 

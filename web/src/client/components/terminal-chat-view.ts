@@ -386,7 +386,6 @@ export class TerminalChatView extends LitElement {
   @query('.chat-messages-container')
   private messagesContainer!: HTMLElement;
 
-  // biome-ignore lint/correctness/noUnusedPrivateClassMembers: Used in addMessage()
   private messageIdCounter = 0;
 
   connectedCallback() {
@@ -522,9 +521,6 @@ export class TerminalChatView extends LitElement {
     // Sync input when becoming active
     if (changedProperties.has('active')) {
       if (this.active) {
-        // Reset waiting state when entering chat mode
-        this.waitingForResponse = false;
-
         // Priority: terminal buffer > pendingInput
         if (this.getTerminalInputLine) {
           // Read from terminal buffer - it has the "truth" of what's on screen
@@ -557,8 +553,6 @@ export class TerminalChatView extends LitElement {
           }
         }, 100);
       } else {
-        // Reset waiting state when leaving chat mode
-        this.waitingForResponse = false;
         this.lastSentValue = '';
         if (this.inputElement) {
           this.inputElement.value = '';
@@ -764,8 +758,6 @@ export class TerminalChatView extends LitElement {
     }
   }
 
-  private waitingForResponse = false;
-
   private stripAnsiCodes(str: string): string {
     // Remove ANSI escape codes but preserve the text
     // biome-ignore lint/complexity/useRegexLiterals: Avoiding control character lint errors
@@ -932,10 +924,7 @@ export class TerminalChatView extends LitElement {
     // Force next output to create a new message by adding a placeholder command
     this.addMessage('command', `[Option ${option.response}]`);
 
-    // Wait for response after selecting an option
-    this.waitingForResponse = true;
-
-    logger.log(`Selected option ${index + 1}: ${option}`);
+    logger.log(`Selected option ${option.response}: ${option.label}`);
   }
 
   /**
@@ -1178,9 +1167,6 @@ export class TerminalChatView extends LitElement {
     // Track when user last typed - used to pause sync during active typing
     this.lastInputTime = Date.now();
 
-    // Stop waiting for response when user starts typing a new command
-    this.waitingForResponse = false;
-
     const newValue = input.value;
 
     // Update pending input for InputManager (for display sync)
@@ -1244,9 +1230,6 @@ export class TerminalChatView extends LitElement {
     if (this.onSend) {
       this.onSend('\r');
     }
-
-    // Start waiting for response
-    this.waitingForResponse = true;
 
     // Clear input directly on the DOM element
     input.value = '';
