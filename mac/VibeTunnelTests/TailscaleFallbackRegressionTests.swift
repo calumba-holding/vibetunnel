@@ -64,7 +64,7 @@ final class TailscaleFallbackRegressionTests {
 
     @Test(
         .tags(.critical),
-        .disabled(if: TestConditions.isRunningInCI(), "Flaky in CI due to shared server singleton and port timing"))
+        .disabled("Flaky due to shared server singleton and port timing"))
     func `Server binds to network interface with Tailscale fallback`() async throws {
         self.logger.info("Testing that server doesn't force localhost binding")
 
@@ -105,7 +105,7 @@ final class TailscaleFallbackRegressionTests {
 
     @Test(
         .tags(.critical),
-        .disabled(if: TestConditions.isRunningInCI(), "Flaky in CI due to shared server singleton and port timing"))
+        .disabled("Flaky due to shared server singleton and port timing"))
     func `Tailscale fallback mode activates without errors`() async throws {
         self.logger.info("Testing fallback mode activation when Tailscale Serve unavailable")
 

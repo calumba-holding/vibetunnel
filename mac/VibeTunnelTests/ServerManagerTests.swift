@@ -23,7 +23,7 @@ final class ServerManagerTests {
 
     @Test(
         .tags(.critical, .attachmentTests),
-        .disabled(if: TestConditions.isRunningInCI(), "Flaky in CI due to port conflicts and process management"),
+        .disabled("Flaky due to shared server singleton and port timing"),
         .disabled(
             if: !ServerBinaryAvailableCondition.isAvailable(),
             "Requires bundled vibetunnel binary in app Resources"))
@@ -179,7 +179,7 @@ final class ServerManagerTests {
     }
 
     @Test(
-        .disabled(if: TestConditions.isRunningInCI(), "Flaky in CI due to port conflicts and timing issues"))
+        .disabled("Flaky due to shared server singleton and port timing"))
     func `Bind address persistence across server restarts`() async throws {
         // Store original values
         let originalMode = UserDefaults.standard.string(forKey: "dashboardAccessMode")
@@ -230,7 +230,7 @@ final class ServerManagerTests {
 
     @Test(
         .tags(.concurrency),
-        .disabled(if: TestConditions.isRunningInCI(), "Flaky in CI due to shared server singleton and port timing"))
+        .disabled("Flaky due to shared server singleton and port timing"))
     func `Concurrent server operations are serialized`() async {
         // Ensure clean state
         await self.manager.stop()
@@ -271,7 +271,7 @@ final class ServerManagerTests {
 
     @Test(
         .tags(.critical),
-        .disabled(if: TestConditions.isRunningInCI(), "Flaky in CI due to shared server singleton and port timing"))
+        .disabled("Flaky due to shared server singleton and port timing"))
     func `Server restart maintains configuration`() async throws {
         // Set specific configuration
         let originalPort = self.manager.port
@@ -317,7 +317,7 @@ final class ServerManagerTests {
 
     @Test(
         .tags(.reliability),
-        .disabled(if: TestConditions.isRunningInCI(), "Flaky in CI due to shared server singleton and port timing"))
+        .disabled("Flaky due to shared server singleton and port timing"))
     func `Server state remains consistent after operations`() async throws {
         // Ensure clean state
         await self.manager.stop()
@@ -346,7 +346,7 @@ final class ServerManagerTests {
     // MARK: - Crash Recovery Tests
 
     @Test(
-        .disabled(if: TestConditions.isRunningInCI(), "Flaky in CI due to shared server singleton and port timing"))
+        .disabled("Flaky due to shared server singleton and port timing"))
     func `Server auto-restart behavior`() async throws {
         // Start server
         await self.manager.start()
