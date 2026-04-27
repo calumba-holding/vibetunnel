@@ -19,8 +19,8 @@ struct GeneralSettingsViewTests {
         configManager.notificationVibrationEnabled = true
     }
 
-    @Test("Notification preferences have correct default values")
-    func notificationPreferencesDefaultValues() {
+    @Test
+    func `Notification preferences have correct default values`() {
         // Get default preferences from ConfigManager
         let configManager = ConfigManager.shared
         self.resetNotificationDefaults(configManager)
@@ -41,8 +41,8 @@ struct GeneralSettingsViewTests {
         #expect(configManager.notificationBell == true)
     }
 
-    @Test("Notification checkbox toggle updates preferences")
-    func notificationCheckboxToggle() {
+    @Test
+    func `Notification checkbox toggle updates preferences`() {
         let configManager = ConfigManager.shared
         self.resetNotificationDefaults(configManager)
 
@@ -66,8 +66,8 @@ struct GeneralSettingsViewTests {
         configManager.notificationSessionStart = true
     }
 
-    @Test("Notification preferences save correctly")
-    func notificationPreferencesSave() {
+    @Test
+    func `Notification preferences save correctly`() {
         // Test that ConfigManager properties work correctly
         let configManager = ConfigManager.shared
         self.resetNotificationDefaults(configManager)
@@ -104,8 +104,8 @@ struct GeneralSettingsViewTests {
         configManager.notificationVibrationEnabled = true
     }
 
-    @Test("Notification checkboxes visibility logic")
-    func notificationCheckboxesVisibility() {
+    @Test
+    func `Notification checkboxes visibility logic`() {
         // This would require UI testing framework to verify actual visibility
         // For now, we test the logic that controls visibility
 

@@ -31,10 +31,9 @@ final class TailscaleFallbackRegressionTests {
     // MARK: - Regression Test 1: Toggle Auto-Disable Bug
 
     @Test(
-        "Tailscale toggle does not auto-disable after 10 seconds",
         .tags(.critical),
         .timeLimit(.minutes(1)))
-    func tailscaleToggleDoesNotAutoDisable() async throws {
+    func `Tailscale toggle does not auto-disable after 10 seconds`() async throws {
         self.logger.info("Testing that Tailscale toggle remains enabled in fallback mode")
 
         // Enable Tailscale Serve in settings
@@ -69,9 +68,8 @@ final class TailscaleFallbackRegressionTests {
     // MARK: - Regression Test 2: Forced Localhost Binding Bug
 
     @Test(
-        "Server binds to network interface with Tailscale fallback",
         .tags(.critical))
-    func serverBindsToNetworkWithTailscaleFallback() async throws {
+    func `Server binds to network interface with Tailscale fallback`() async throws {
         self.logger.info("Testing that server doesn't force localhost binding")
 
         // Set dashboard access to network mode
@@ -110,9 +108,8 @@ final class TailscaleFallbackRegressionTests {
     // MARK: - Regression Test 3: Fallback Mode Activation
 
     @Test(
-        "Tailscale fallback mode activates without errors",
         .tags(.critical))
-    func tailscaleFallbackModeActivation() async throws {
+    func `Tailscale fallback mode activates without errors`() async throws {
         self.logger.info("Testing fallback mode activation when Tailscale Serve unavailable")
 
         // Enable Tailscale
@@ -164,9 +161,8 @@ final class TailscaleFallbackRegressionTests {
     // MARK: - Regression Test 4: UI Error Display
 
     @Test(
-        "UI shows correct status in fallback mode",
         .tags(.integration))
-    func uIShowsCorrectStatusInFallback() async throws {
+    func `UI shows correct status in fallback mode`() async throws {
         self.logger.info("Testing UI status display in fallback mode")
 
         // Enable Tailscale
@@ -203,12 +199,11 @@ final class TailscaleFallbackRegressionTests {
     // MARK: - Helper to simulate Tailscale Serve unavailable
 
     @Test(
-        "Helper: Simulate Tailscale Serve permanently disabled",
         .tags(.integration),
         .disabled(
             if: !ProcessInfo.processInfo.environment.keys.contains("TEST_TAILSCALE_HELPERS"),
             "Helper test only runs with TEST_TAILSCALE_HELPERS=1"))
-    func simulateTailscaleServeUnavailable() async throws {
+    func `Helper: Simulate Tailscale Serve permanently disabled`() {
         // This helper test can be used to manually trigger the fallback scenario
         self.logger.info("Simulating Tailscale Serve unavailable scenario")
 

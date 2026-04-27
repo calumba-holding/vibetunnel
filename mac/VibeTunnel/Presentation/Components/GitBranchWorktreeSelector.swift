@@ -207,7 +207,6 @@ struct GitBranchWorktreeSelector: View {
 
     // MARK: - Subviews
 
-    @ViewBuilder
     private var statusText: some View {
         VStack(alignment: .leading, spacing: 2) {
             if self.hasUncommittedChanges, self.selectedWorktree == nil {

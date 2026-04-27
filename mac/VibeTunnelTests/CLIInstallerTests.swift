@@ -129,8 +129,8 @@ struct CLIInstallerTests {
 
     // MARK: - Installation Status Tests
 
-    @Test("Check installation status")
-    func testCheckInstallationStatus() throws {
+    @Test
+    func `Check installation status`() {
         let installer = MockCLIInstaller()
 
         // Not installed
@@ -148,8 +148,8 @@ struct CLIInstallerTests {
         #expect(installer.isInstalled)
     }
 
-    @Test("Installation status detects existing symlink")
-    func detectExistingSymlink() throws {
+    @Test
+    func `Installation status detects existing symlink`() {
         let installer = CLIInstaller()
 
         // Check real status (may or may not be installed)
@@ -161,8 +161,8 @@ struct CLIInstallerTests {
 
     // MARK: - Installation Process Tests
 
-    @Test("Installing CLI tool to custom location")
-    func cLIInstallation() async throws {
+    @Test
+    func `Installing CLI tool to custom location`() async {
         let installer = MockCLIInstaller()
 
         // Set up mock
@@ -179,8 +179,8 @@ struct CLIInstallerTests {
         #expect(installer.showSuccessCalled)
     }
 
-    @Test("Installation failure handling")
-    func installationFailure() async throws {
+    @Test
+    func `Installation failure handling`() async {
         let installer = MockCLIInstaller()
 
         // Set up failure
@@ -197,8 +197,8 @@ struct CLIInstallerTests {
         #expect(installer.showErrorCalled)
     }
 
-    @Test("Updating existing CLI installation")
-    func cLIUpdate() async throws {
+    @Test
+    func `Updating existing CLI installation`() async {
         let installer = MockCLIInstaller()
 
         // Simulate existing installation
@@ -216,8 +216,8 @@ struct CLIInstallerTests {
 
     // MARK: - Resource Validation Tests
 
-    @Test("Missing CLI binary in bundle")
-    func missingCLIBinary() async throws {
+    @Test
+    func `Missing CLI binary in bundle`() async {
         let installer = MockCLIInstaller()
 
         // Simulate missing resource
@@ -231,8 +231,8 @@ struct CLIInstallerTests {
         #expect(installer.lastError?.contains("could not be found") == true)
     }
 
-    @Test("Valid resource path")
-    func validResourcePath() throws {
+    @Test
+    func `Valid resource path`() {
         // Check if vt binary exists in bundle
         let resourcePath = Bundle.main.path(forResource: "vt", ofType: nil)
 
@@ -244,8 +244,8 @@ struct CLIInstallerTests {
 
     // MARK: - Permission Tests
 
-    @Test("Permission handling", .enabled(if: ProcessInfo.processInfo.environment["CI"] == nil))
-    func permissions() async throws {
+    @Test(.enabled(if: ProcessInfo.processInfo.environment["CI"] == nil))
+    func `Permission handling`() async {
         let installer = MockCLIInstaller()
 
         // Simulate permission error
@@ -258,8 +258,8 @@ struct CLIInstallerTests {
         #expect(installer.lastError?.contains("not permitted") == true)
     }
 
-    @Test("Administrator privileges required")
-    func adminPrivileges() throws {
+    @Test
+    func `Administrator privileges required`() {
         // This test documents that admin privileges are required
         // The actual installation uses osascript with administrator privileges
 
@@ -276,8 +276,8 @@ struct CLIInstallerTests {
 
     // MARK: - Script Generation Tests
 
-    @Test("Installation script generation")
-    func scriptGeneration() throws {
+    @Test
+    func `Installation script generation`() {
         let sourcePath = "/Applications/VibeTunnel.app/Contents/Resources/vt"
         let targetPath = "/usr/local/bin/vt"
 
@@ -317,8 +317,8 @@ struct CLIInstallerTests {
 
     // MARK: - State Management Tests
 
-    @Test("Installation state transitions")
-    func stateTransitions() async throws {
+    @Test
+    func `Installation state transitions`() {
         let installer = MockCLIInstaller()
 
         // Initial state
@@ -350,8 +350,8 @@ struct CLIInstallerTests {
 
     // MARK: - UI Alert Tests
 
-    @Test("User confirmation dialogs")
-    func userDialogs() async throws {
+    @Test
+    func `User confirmation dialogs`() async {
         let installer = MockCLIInstaller()
 
         // Test shows appropriate dialogs
@@ -373,8 +373,8 @@ struct CLIInstallerTests {
 
     // MARK: - Concurrent Installation Tests
 
-    @Test("Concurrent installation attempts", .tags(.concurrency))
-    func concurrentInstallation() async throws {
+    @Test(.tags(.concurrency))
+    func `Concurrent installation attempts`() async {
         let installer = MockCLIInstaller()
 
         // Attempt multiple installations concurrently
@@ -396,8 +396,8 @@ struct CLIInstallerTests {
 
     // MARK: - Integration Tests
 
-    @Test("Full installation workflow", .tags(.integration))
-    func fullWorkflow() async throws {
+    @Test(.tags(.integration))
+    func `Full installation workflow`() async {
         let installer = MockCLIInstaller()
 
         // 1. Check initial status
@@ -419,8 +419,8 @@ struct CLIInstallerTests {
 
     // MARK: - PR #153 Regression Test
 
-    @Test("Script with TITLE_MODE_ARGS detected correctly", .tags(.regression))
-    func scriptWithTitleModeArgsDetection() async throws {
+    @Test(.tags(.regression))
+    func `Script with TITLE_MODE_ARGS detected correctly`() async throws {
         let script = """
         #!/bin/bash
         # VibeTunnel CLI wrapper
@@ -447,15 +447,15 @@ struct CLIInstallerTests {
         #expect(installer.isInstalled)
     }
 
-    @Test("Installed script matching bundle is not marked outdated", .tags(.regression))
-    func installedScriptMatchesBundleNotOutdated() async throws {
+    @Test(.tags(.regression))
+    func `Installed script matching bundle is not marked outdated`() async throws {
         let installer = CLIInstaller(binDirectory: tempDirectory.path)
 
         guard let bundledPath = Bundle.main.path(forResource: "vt", ofType: nil) else {
             // SwiftPM tests don't have the app bundle resources.
             return
         }
-        let targetPath = tempDirectory.appendingPathComponent("vt").path
+        let targetPath = self.tempDirectory.appendingPathComponent("vt").path
         let scriptData = try Data(contentsOf: URL(fileURLWithPath: bundledPath))
         try scriptData.write(to: URL(fileURLWithPath: targetPath), options: .atomic)
 

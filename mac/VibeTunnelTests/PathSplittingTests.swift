@@ -3,8 +3,8 @@ import Testing
 
 @Suite("Path Splitting Tests")
 struct PathSplittingTests {
-    @Test("Path expansion with tilde")
-    func pathExpansion() {
+    @Test
+    func `Path expansion with tilde`() {
         // Test 1: Expanding "~/Pr"
         let shortPath = "~/Pr"
         let expandedPath = NSString(string: shortPath).expandingTildeInPath
@@ -15,8 +15,8 @@ struct PathSplittingTests {
         #expect(expandedPath == "\(NSHomeDirectory())/Pr")
     }
 
-    @Test("URL handling of non-existent paths")
-    func urlWithNonExistentPath() {
+    @Test
+    func `URL handling of non-existent paths`() {
         // Test 2: How URL handles non-existent paths
         let nonExistentPath = NSString(string: "~/Pr").expandingTildeInPath
         let url = URL(fileURLWithPath: nonExistentPath)
@@ -30,13 +30,13 @@ struct PathSplittingTests {
         #expect(!exists)
     }
 
-    @Test("Path components extraction", arguments: [
+    @Test(arguments: [
         "~/Pr",
         "/Users/steipete/Pr",
         "/Users/steipete/Projects",
         "/Users/steipete/Projects/vibetunnel"
     ])
-    func pathComponents(path: String) {
+    func `Path components extraction`(path: String) {
         // Test 3: deletingLastPathComponent and lastPathComponent
         let url = URL(fileURLWithPath: path.starts(with: "~") ? NSString(string: path).expandingTildeInPath : path)
         let parent = url.deletingLastPathComponent()
@@ -47,8 +47,8 @@ struct PathSplittingTests {
         #expect(parent.path.count <= url.path.count)
     }
 
-    @Test("Special path cases")
-    func specialCases() {
+    @Test
+    func `Special path cases`() {
         // Test with trailing slash
         let pathWithSlash = "~/Pr/"
         let expandedWithSlash = NSString(string: pathWithSlash).expandingTildeInPath
@@ -71,8 +71,8 @@ struct PathSplittingTests {
         #expect(singleComponent.lastPathComponent == "Users")
     }
 
-    @Test("Autocomplete scenario")
-    func autocompleteScenario() throws {
+    @Test
+    func `Autocomplete scenario`() throws {
         // Test the actual autocomplete scenario
         let input = "~/Pr"
         let expandedInput = NSString(string: input).expandingTildeInPath

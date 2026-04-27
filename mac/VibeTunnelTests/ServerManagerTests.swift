@@ -22,13 +22,12 @@ final class ServerManagerTests {
     // MARK: - Server Lifecycle Tests
 
     @Test(
-        "Starting and stopping Bun server",
         .tags(.critical, .attachmentTests),
         .disabled(if: TestConditions.isRunningInCI(), "Flaky in CI due to port conflicts and process management"),
         .disabled(
             if: !ServerBinaryAvailableCondition.isAvailable(),
             "Requires bundled vibetunnel binary in app Resources"))
-    func serverLifecycle() async throws {
+    func `Starting and stopping Bun server`() async throws {
         // Start the server
         await self.manager.start()
 
@@ -63,8 +62,8 @@ final class ServerManagerTests {
         #expect(!self.manager.isRunning)
     }
 
-    @Test("Starting server when already running does not create duplicate", .tags(.critical))
-    func startingAlreadyRunningServer() async throws {
+    @Test(.tags(.critical))
+    func `Starting server when already running does not create duplicate`() async throws {
         // In test environment, we can't actually start the server
         // So we'll test the logic of preventing duplicate starts
 
@@ -93,8 +92,8 @@ final class ServerManagerTests {
         await self.manager.stop()
     }
 
-    @Test("Port configuration")
-    func portConfiguration() async throws {
+    @Test
+    func `Port configuration`() {
         // Store original port
         let originalPort = self.manager.port
 
@@ -111,11 +110,11 @@ final class ServerManagerTests {
         self.manager.port = originalPort
     }
 
-    @Test("Bind address configuration", arguments: [
+    @Test(arguments: [
         DashboardAccessMode.localhost,
         DashboardAccessMode.network,
     ])
-    func bindAddressConfiguration(mode: DashboardAccessMode) async throws {
+    func `Bind address configuration`(mode: DashboardAccessMode) {
         // Store original mode
         let originalMode = UserDefaults.standard.string(forKey: "dashboardAccessMode") ?? ""
 
@@ -129,8 +128,8 @@ final class ServerManagerTests {
         UserDefaults.standard.set(originalMode, forKey: "dashboardAccessMode")
     }
 
-    @Test("Bind address default value")
-    func bindAddressDefaultValue() async throws {
+    @Test
+    func `Bind address default value`() {
         // Store original value
         let originalMode = UserDefaults.standard.string(forKey: "dashboardAccessMode")
 
@@ -147,8 +146,8 @@ final class ServerManagerTests {
         }
     }
 
-    @Test("Bind address setter")
-    func bindAddressSetter() async throws {
+    @Test
+    func `Bind address setter`() {
         // Store original value
         let originalMode = UserDefaults.standard.string(forKey: "dashboardAccessMode")
 
@@ -178,9 +177,8 @@ final class ServerManagerTests {
     }
 
     @Test(
-        "Bind address persistence across server restarts",
         .disabled(if: TestConditions.isRunningInCI(), "Flaky in CI due to port conflicts and timing issues"))
-    func bindAddressPersistence() async throws {
+    func `Bind address persistence across server restarts`() async throws {
         // Store original values
         let originalMode = UserDefaults.standard.string(forKey: "dashboardAccessMode")
         let originalPort = self.manager.port
@@ -228,8 +226,8 @@ final class ServerManagerTests {
 
     // MARK: - Concurrent Operations Tests
 
-    @Test("Concurrent server operations are serialized", .tags(.concurrency))
-    func concurrentServerOperations() async throws {
+    @Test(.tags(.concurrency))
+    func `Concurrent server operations are serialized`() async {
         // Ensure clean state
         await self.manager.stop()
 
@@ -267,8 +265,8 @@ final class ServerManagerTests {
         await self.manager.stop()
     }
 
-    @Test("Server restart maintains configuration", .tags(.critical))
-    func serverRestart() async throws {
+    @Test(.tags(.critical))
+    func `Server restart maintains configuration`() async throws {
         // Set specific configuration
         let originalPort = self.manager.port
         let testPort = "4567"
@@ -311,8 +309,8 @@ final class ServerManagerTests {
 
     // MARK: - Error Handling Tests
 
-    @Test("Server state remains consistent after operations", .tags(.reliability))
-    func serverStateConsistency() async throws {
+    @Test(.tags(.reliability))
+    func `Server state remains consistent after operations`() async throws {
         // Ensure clean state
         await self.manager.stop()
 
@@ -339,8 +337,8 @@ final class ServerManagerTests {
 
     // MARK: - Crash Recovery Tests
 
-    @Test("Server auto-restart behavior")
-    func serverAutoRestart() async throws {
+    @Test
+    func `Server auto-restart behavior`() async throws {
         // Start server
         await self.manager.start()
         try await Task.sleep(for: .milliseconds(200))
@@ -372,10 +370,9 @@ final class ServerManagerTests {
     // MARK: - Enhanced Server Management Tests with Attachments
 
     @Test(
-        "Server configuration management with diagnostics",
         .tags(.attachmentTests, .requiresServerBinary),
         .enabled(if: ServerBinaryAvailableCondition.isAvailable()))
-    func serverConfigurationDiagnostics() async throws {
+    func `Server configuration management with diagnostics`() {
         // Test server configuration without actually starting it
         let originalPort = self.manager.port
         self.manager.port = "4567"
@@ -386,8 +383,8 @@ final class ServerManagerTests {
         self.manager.port = originalPort
     }
 
-    @Test("Session model validation with attachments", .tags(.attachmentTests, .sessionManagement))
-    func sessionModelValidation() async throws {
+    @Test(.tags(.attachmentTests, .sessionManagement))
+    func `Session model validation with attachments`() {
         // Create test session
         let session = TunnelSession()
 

@@ -4,9 +4,9 @@ import Testing
 
 @Suite("RepositoryDiscoveryService Tests", .disabled("File system scanning tests disabled in CI"))
 struct RepositoryDiscoveryServiceTests {
-    @Test("Test repository discovery initialization")
+    @Test
     @MainActor
-    func serviceInitialization() async {
+    func `repository discovery initialization`() {
         let service = RepositoryDiscoveryService()
 
         #expect(service.repositories.isEmpty)
@@ -14,9 +14,9 @@ struct RepositoryDiscoveryServiceTests {
         #expect(service.lastError == nil)
     }
 
-    @Test("Test discovery state management")
+    @Test
     @MainActor
-    func discoveryStateManagement() async {
+    func `discovery state management`() async {
         let service = RepositoryDiscoveryService()
 
         // Start discovery
@@ -37,9 +37,9 @@ struct RepositoryDiscoveryServiceTests {
         #expect(!service.isDiscovering)
     }
 
-    @Test("Test cache functionality")
+    @Test
     @MainActor
-    func cacheFunctionality() async throws {
+    func `cache functionality`() async throws {
         let service = RepositoryDiscoveryService()
         let testPath = NSTemporaryDirectory()
 
@@ -59,9 +59,9 @@ struct RepositoryDiscoveryServiceTests {
         #expect(service.repositories.count == firstCount)
     }
 
-    @Test("Test race condition handling")
+    @Test
     @MainActor
-    func raceConditionHandling() async throws {
+    func `race condition handling`() async throws {
         // Create a service that will be deallocated during discovery
         var service: RepositoryDiscoveryService? = RepositoryDiscoveryService()
 
@@ -81,9 +81,9 @@ struct RepositoryDiscoveryServiceTests {
         #expect(true) // If we get here, the race condition was handled
     }
 
-    @Test("Test tilde expansion in path")
+    @Test
     @MainActor
-    func tildeExpansion() async {
+    func `tilde expansion in path`() async {
         let service = RepositoryDiscoveryService()
 
         // Test with tilde path

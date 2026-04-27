@@ -4,9 +4,9 @@ import UserNotifications
 
 @Suite("NotificationService Tests")
 struct NotificationServiceTests {
-    @Test("Notification preferences are loaded correctly from ConfigManager")
+    @Test
     @MainActor
-    func loadPreferencesFromConfig() {
+    func `Notification preferences are loaded correctly from ConfigManager`() {
         // This test verifies that NotificationPreferences correctly loads values from ConfigManager
         let configManager = ConfigManager.shared
         let preferences = NotificationService.NotificationPreferences(fromConfig: configManager)
@@ -21,9 +21,9 @@ struct NotificationServiceTests {
         #expect(preferences.vibrationEnabled == configManager.notificationVibrationEnabled)
     }
 
-    @Test("Default notification values match expected defaults")
+    @Test
     @MainActor
-    func verifyDefaultValues() {
+    func `Default notification values match expected defaults`() {
         // This test documents what the default values SHOULD be
         // In production, these would be set when no config file exists
 
@@ -59,9 +59,9 @@ struct NotificationServiceTests {
         #expect(expectedVibration == true, "Vibration should be enabled by default")
     }
 
-    @Test("Notification preferences can be updated")
+    @Test
     @MainActor
-    func testUpdatePreferences() {
+    func `Notification preferences can be updated`() {
         let service = NotificationService.shared
         let configManager = ConfigManager.shared
 
@@ -78,9 +78,9 @@ struct NotificationServiceTests {
         #expect(configManager.notificationBell == true)
     }
 
-    @Test("Session start notification is sent when enabled")
+    @Test
     @MainActor
-    func sessionStartNotification() async throws {
+    func `Session start notification is sent when enabled`() async {
         let service = NotificationService.shared
         let configManager = ConfigManager.shared
 
@@ -102,9 +102,9 @@ struct NotificationServiceTests {
         #expect(preferences.sessionStart == true)
     }
 
-    @Test("Session exit notification includes exit code")
+    @Test
     @MainActor
-    func sessionExitNotification() async throws {
+    func `Session exit notification includes exit code`() async {
         let service = NotificationService.shared
         let configManager = ConfigManager.shared
 
@@ -134,9 +134,9 @@ struct NotificationServiceTests {
         #expect(preferences.sessionExit == true)
     }
 
-    @Test("Command completion notification respects duration threshold")
+    @Test
     @MainActor
-    func commandCompletionNotification() async throws {
+    func `Command completion notification respects duration threshold`() async {
         let service = NotificationService.shared
         let configManager = ConfigManager.shared
 
@@ -166,9 +166,9 @@ struct NotificationServiceTests {
         #expect(preferences.commandCompletion == true)
     }
 
-    @Test("Command error notification is sent for non-zero exit codes")
+    @Test
     @MainActor
-    func commandErrorNotification() async throws {
+    func `Command error notification is sent for non-zero exit codes`() async {
         let service = NotificationService.shared
         let configManager = ConfigManager.shared
 
@@ -192,9 +192,9 @@ struct NotificationServiceTests {
         #expect(preferences.commandError == true)
     }
 
-    @Test("Bell notification is sent when enabled")
+    @Test
     @MainActor
-    func bellNotification() async throws {
+    func `Bell notification is sent when enabled`() async {
         let service = NotificationService.shared
         let configManager = ConfigManager.shared
 
@@ -213,9 +213,9 @@ struct NotificationServiceTests {
         #expect(preferences.bell == true)
     }
 
-    @Test("Notifications are not sent when disabled")
+    @Test
     @MainActor
-    func disabledNotifications() async throws {
+    func `Notifications are not sent when disabled`() async {
         let service = NotificationService.shared
         let configManager = ConfigManager.shared
 
@@ -275,9 +275,9 @@ struct NotificationServiceTests {
         #expect(preferences.bell == false)
     }
 
-    @Test("Service handles missing session names gracefully")
+    @Test
     @MainActor
-    func missingSessionNames() async throws {
+    func `Service handles missing session names gracefully`() async {
         let service = NotificationService.shared
         let configManager = ConfigManager.shared
 

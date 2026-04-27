@@ -9,7 +9,7 @@ import Testing
 struct TerminalLaunchTests {
     // MARK: - URL Generation Tests
 
-    @Test("Terminal URL generation", arguments: [
+    @Test(arguments: [
         (Terminal.iTerm2, "echo 'Hello World'", "iterm2://run?command=echo%20\'Hello%20World\'"),
         (Terminal.iTerm2, "cd /tmp && ls", "iterm2://run?command=cd%20/tmp%20%26%26%20ls"),
         (Terminal.terminal, "echo test", nil),
@@ -17,7 +17,7 @@ struct TerminalLaunchTests {
         (Terminal.hyper, "echo test", nil),
         (Terminal.wezterm, "echo test", nil),
     ])
-    func terminalURLGeneration(terminal: Terminal, command: String, expectedURL: String?) {
+    func `Terminal URL generation`(terminal: Terminal, command: String, expectedURL: String?) {
         if let url = terminal.commandURL(for: command) {
             #expect(url.absoluteString == expectedURL)
         } else {
@@ -27,8 +27,8 @@ struct TerminalLaunchTests {
 
     // MARK: - Command Arguments Tests
 
-    @Test("Command argument generation for terminals")
-    func commandArgumentGeneration() {
+    @Test
+    func `Command argument generation for terminals`() {
         let command = "echo 'Hello World'"
 
         // Test Alacritty arguments
@@ -46,8 +46,8 @@ struct TerminalLaunchTests {
 
     // MARK: - Working Directory Tests
 
-    @Test("Working directory support")
-    func workingDirectorySupport() {
+    @Test
+    func `Working directory support`() {
         let workDir = "/Users/test/projects"
         let command = "ls -la"
 
@@ -80,8 +80,8 @@ struct TerminalLaunchTests {
 
     // MARK: - Complex Command Tests
 
-    @Test("Complex command encoding")
-    func complexCommandEncoding() {
+    @Test
+    func `Complex command encoding`() {
         let complexCommand = "git log --oneline -10 && echo 'Done!'"
 
         // Test iTerm2 URL encoding
@@ -98,8 +98,8 @@ struct TerminalLaunchTests {
 
     // MARK: - Terminal Detection Tests
 
-    @Test("Terminal detection")
-    func terminalDetection() {
+    @Test
+    func `Terminal detection`() {
         // At least Terminal.app should be available on macOS
         #expect(Terminal.installed.contains(.terminal))
 
@@ -112,9 +112,9 @@ struct TerminalLaunchTests {
 
     // MARK: - Environment Variable Tests
 
-    @Test("Launching with environment variables")
+    @Test
     @MainActor
-    func environmentVariables() {
+    func `Launching with environment variables`() {
         _ = ["MY_VAR": "test_value", "PATH": "/custom/path:/usr/bin"]
         _ = "echo $MY_VAR"
 
@@ -128,8 +128,8 @@ struct TerminalLaunchTests {
 
     // MARK: - Script File Tests
 
-    @Test("Script file execution")
-    func scriptFileExecution() throws {
+    @Test
+    func `Script file execution`() throws {
         let tempDir = FileManager.default.temporaryDirectory
         let scriptPath = tempDir.appendingPathComponent("test_script.sh")
 

@@ -3,9 +3,9 @@ import Testing
 
 @Suite("WS v3 request auth headers (mac)")
 struct WsV3SocketClientRequestTests {
-    @Test("Local auth tokens use X-VibeTunnel-Local header")
+    @Test
     @MainActor
-    func localTokenUsesLocalHeader() {
+    func `Local auth tokens use X-VibeTunnel-Local header`() {
         let token = "local-token-value"
         let request = WsV3SocketClient.shared.makeRequest(serverPort: "4020", token: token)
 
@@ -15,9 +15,9 @@ struct WsV3SocketClientRequestTests {
         #expect(!(request?.url?.query?.contains("token=") ?? false))
     }
 
-    @Test("JWT tokens use Bearer auth + query token")
+    @Test
     @MainActor
-    func jwtTokenUsesBearerAndQuery() {
+    func `JWT tokens use Bearer auth + query token`() {
         let token = "header.payload.signature"
         let request = WsV3SocketClient.shared.makeRequest(serverPort: "4020", token: token)
 

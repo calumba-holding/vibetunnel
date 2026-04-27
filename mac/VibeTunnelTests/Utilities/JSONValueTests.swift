@@ -4,8 +4,8 @@ import Testing
 
 @Suite("JSONValue Tests", .tags(.models))
 struct JSONValueTests {
-    @Test("Decodes object with nested values")
-    func decodeObject() throws {
+    @Test
+    func `Decodes object with nested values`() throws {
         let json = """
         {
             "name": "VibeTunnel",
@@ -26,8 +26,8 @@ struct JSONValueTests {
         #expect(object["list"]?.array?.last == .null)
     }
 
-    @Test("Round-trips via JSONEncoder/Decoder")
-    func roundTrip() throws {
+    @Test
+    func `Round-trips via JSONEncoder/Decoder`() throws {
         let value: JSONValue = .object([
             "name": .string("vibe"),
             "count": .number(2),
@@ -40,8 +40,8 @@ struct JSONValueTests {
         #expect(decoded == value)
     }
 
-    @Test("Converts from Any payloads")
-    func convertsFromAny() throws {
+    @Test
+    func `Converts from Any payloads`() throws {
         let payload: [String: Any] = [
             "name": "vibe",
             "count": 2,

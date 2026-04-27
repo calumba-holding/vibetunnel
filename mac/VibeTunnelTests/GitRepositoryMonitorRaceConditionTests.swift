@@ -7,10 +7,9 @@ import Testing
 @MainActor
 struct GitRepositoryMonitorRaceConditionTests {
     @Test(
-        "Concurrent GitHub URL fetches don't cause duplicate Git operations",
         .tags(.attachmentTests),
         .enabled(if: TestConditions.isInGitRepository()))
-    func concurrentGitHubURLFetches() async throws {
+    func `Concurrent GitHub URL fetches don't cause duplicate Git operations`() async throws {
         let monitor = GitRepositoryMonitor()
         let testRepoPath = "/test/repo/path"
 
@@ -64,8 +63,8 @@ struct GitRepositoryMonitorRaceConditionTests {
         monitor.clearCache()
     }
 
-    @Test("GitHub URL fetch completes even on failure")
-    func gitHubURLFetchFailureHandling() async throws {
+    @Test
+    func `GitHub URL fetch completes even on failure`() async {
         let monitor = GitRepositoryMonitor()
         let invalidRepoPath = "/this/is/not/a/git/repo"
 
@@ -79,8 +78,8 @@ struct GitRepositoryMonitorRaceConditionTests {
         monitor.clearCache()
     }
 
-    @Test("Clear cache removes in-progress fetches")
-    func clearCacheRemovesInProgressFetches() async throws {
+    @Test
+    func `Clear cache removes in-progress fetches`() {
         let monitor = GitRepositoryMonitor()
 
         // Start a fetch (simulated through public API)

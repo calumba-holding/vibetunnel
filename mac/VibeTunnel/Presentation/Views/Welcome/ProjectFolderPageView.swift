@@ -213,7 +213,7 @@ struct ProjectFolderPageView: View {
     private func findGitRepositories(in path: String, maxDepth: Int) async -> [String] {
         var repositories: [String] = []
 
-        // Use a recursive async function that properly checks for cancellation
+        /// Use a recursive async function that properly checks for cancellation
         func scanDirectory(_ dirPath: String, depth: Int) async {
             // Check for cancellation at each level
             guard !Task.isCancelled else { return }

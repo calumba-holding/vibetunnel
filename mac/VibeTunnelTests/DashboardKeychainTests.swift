@@ -76,8 +76,8 @@ enum KeychainError: Error, Equatable {
 struct DashboardKeychainTests {
     // MARK: - Password Storage Tests
 
-    @Test("Storing and retrieving passwords")
-    func passwordStorage() throws {
+    @Test
+    func `Storing and retrieving passwords`() {
         let keychain = MockDashboardKeychain()
 
         // Initially no password
@@ -94,7 +94,7 @@ struct DashboardKeychainTests {
         #expect(keychain.hasPassword())
     }
 
-    @Test("Password with special characters", arguments: [
+    @Test(arguments: [
         "p@ssw0rd!",
         "test-password-123",
         "пароль-тест", // Cyrillic
@@ -102,7 +102,7 @@ struct DashboardKeychainTests {
         "🔐secure🔐", // Emoji
         "password with spaces",
     ])
-    func passwordSpecialCharacters(password: String) throws {
+    func `Password with special characters`(password: String) {
         let keychain = MockDashboardKeychain()
 
         let stored = keychain.setPassword(password)
@@ -112,8 +112,8 @@ struct DashboardKeychainTests {
         #expect(retrieved == password)
     }
 
-    @Test("Empty password is rejected")
-    func emptyPassword() throws {
+    @Test
+    func `Empty password is rejected`() {
         let keychain = MockDashboardKeychain()
 
         let stored = keychain.setPassword("")
@@ -126,8 +126,8 @@ struct DashboardKeychainTests {
 
     // MARK: - Password Update Tests
 
-    @Test("Password update operations")
-    func passwordUpdate() throws {
+    @Test
+    func `Password update operations`() {
         let keychain = MockDashboardKeychain()
 
         // Store initial password
@@ -144,8 +144,8 @@ struct DashboardKeychainTests {
         #expect(keychain.getPassword() != initialPassword)
     }
 
-    @Test("Multiple password updates", arguments: 1...5)
-    func multipleUpdates(iteration: Int) throws {
+    @Test(arguments: 1...5)
+    func `Multiple password updates`(iteration: Int) {
         let keychain = MockDashboardKeychain()
 
         let password = "password-v\(iteration)"
@@ -155,8 +155,8 @@ struct DashboardKeychainTests {
 
     // MARK: - Password Deletion Tests
 
-    @Test("Password deletion")
-    func passwordDeletion() throws {
+    @Test
+    func `Password deletion`() {
         let keychain = MockDashboardKeychain()
 
         // Store password
@@ -172,8 +172,8 @@ struct DashboardKeychainTests {
         #expect(!keychain.hasPassword())
     }
 
-    @Test("Delete non-existent password")
-    func deleteNonExistent() throws {
+    @Test
+    func `Delete non-existent password`() {
         let keychain = MockDashboardKeychain()
 
         // Ensure no password exists
@@ -185,13 +185,13 @@ struct DashboardKeychainTests {
 
     // MARK: - Error Handling Tests
 
-    @Test("Keychain error handling", arguments: [
+    @Test(arguments: [
         KeychainError.itemNotFound,
         KeychainError.duplicateItem,
         KeychainError.invalidData,
         KeychainError.accessDenied,
     ])
-    func errorHandling(error: KeychainError) throws {
+    func `Keychain error handling`(error: KeychainError) {
         // Test error descriptions
         switch error {
         case .itemNotFound:
@@ -207,8 +207,8 @@ struct DashboardKeychainTests {
         }
     }
 
-    @Test("Handle keychain operation failures")
-    func operationFailures() throws {
+    @Test
+    func `Handle keychain operation failures`() {
         let keychain = MockDashboardKeychain()
         keychain.shouldFailOperations = true
 
@@ -221,8 +221,8 @@ struct DashboardKeychainTests {
 
     // MARK: - Security Tests
 
-    @Test("Password is not logged in plain text")
-    func passwordLogging() throws {
+    @Test
+    func `Password is not logged in plain text`() {
         // This test verifies that passwords are not exposed in logs
         // In production, the logger should never output the actual password
         let keychain = MockDashboardKeychain()
@@ -236,8 +236,8 @@ struct DashboardKeychainTests {
         // Test passes - functionality verified
     }
 
-    @Test("Has password check doesn't retrieve data")
-    func hasPasswordEfficiency() throws {
+    @Test
+    func `Has password check doesn't retrieve data`() {
         let keychain = MockDashboardKeychain()
 
         // Store a password
@@ -253,8 +253,8 @@ struct DashboardKeychainTests {
 
     // MARK: - Concurrent Access Tests
 
-    @Test("Concurrent password operations", .tags(.concurrency))
-    func concurrentAccess() async throws {
+    @Test(.tags(.concurrency))
+    func `Concurrent password operations`() async {
         let keychain = MockDashboardKeychain()
 
         // Perform multiple operations concurrently
@@ -291,8 +291,8 @@ struct DashboardKeychainTests {
 
     // MARK: - Debug vs Release Behavior Tests
 
-    @Test("Debug mode behavior")
-    func debugModeBehavior() throws {
+    @Test
+    func `Debug mode behavior`() {
         // In debug mode, DashboardKeychain skips actual keychain access
         #if DEBUG
         let keychain = DashboardKeychain.shared
@@ -307,8 +307,8 @@ struct DashboardKeychainTests {
 
     // MARK: - Password Generation Tests
 
-    @Test("Password complexity validation")
-    func passwordComplexity() throws {
+    @Test
+    func `Password complexity validation`() {
         let keychain = MockDashboardKeychain()
 
         // Test various password complexities
@@ -327,8 +327,8 @@ struct DashboardKeychainTests {
 
     // MARK: - Integration Tests
 
-    @Test("Full password lifecycle", .tags(.integration))
-    func fullLifecycle() throws {
+    @Test(.tags(.integration))
+    func `Full password lifecycle`() {
         let keychain = MockDashboardKeychain()
 
         // 1. Initial state - no password

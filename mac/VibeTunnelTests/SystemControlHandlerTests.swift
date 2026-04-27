@@ -5,8 +5,8 @@ import Testing
 @Suite("System Control Handler Tests", .serialized)
 struct SystemControlHandlerTests {
     @MainActor
-    @Test("Handles system ready event")
-    func systemReadyEvent() async throws {
+    @Test
+    func `Handles system ready event`() async throws {
         // Given
         var systemReadyCalled = false
         let handler = SystemControlHandler(onSystemReady: {
@@ -32,8 +32,8 @@ struct SystemControlHandlerTests {
     }
 
     @MainActor
-    @Test("Handles ping request")
-    func pingRequest() async throws {
+    @Test
+    func `Handles ping request`() async throws {
         let handler = SystemControlHandler()
 
         // Create ping request

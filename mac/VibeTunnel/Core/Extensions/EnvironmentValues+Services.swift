@@ -1,69 +1,19 @@
 import SwiftUI
 
-// MARK: - Environment Keys
-
-/// Environment key for ServerManager dependency injection
-private struct ServerManagerKey: EnvironmentKey {
-    static let defaultValue: ServerManager? = nil
-}
-
-/// Environment key for NgrokService dependency injection
-private struct NgrokServiceKey: EnvironmentKey {
-    static let defaultValue: NgrokService? = nil
-}
-
-/// Environment key for SystemPermissionManager dependency injection
-private struct SystemPermissionManagerKey: EnvironmentKey {
-    static let defaultValue: SystemPermissionManager? = nil
-}
-
-/// Environment key for TerminalLauncher dependency injection
-private struct TerminalLauncherKey: EnvironmentKey {
-    static let defaultValue: TerminalLauncher? = nil
-}
-
-/// Environment key for TailscaleService dependency injection
-private struct TailscaleServiceKey: EnvironmentKey {
-    static let defaultValue: TailscaleService? = nil
-}
-
-/// Environment key for CloudflareService dependency injection
-private struct CloudflareServiceKey: EnvironmentKey {
-    static let defaultValue: CloudflareService? = nil
-}
-
 // MARK: - Environment Values Extensions
 
 extension EnvironmentValues {
-    var serverManager: ServerManager? {
-        get { self[ServerManagerKey.self] }
-        set { self[ServerManagerKey.self] = newValue }
-    }
+    @Entry var serverManager: ServerManager?
 
-    var ngrokService: NgrokService? {
-        get { self[NgrokServiceKey.self] }
-        set { self[NgrokServiceKey.self] = newValue }
-    }
+    @Entry var ngrokService: NgrokService? = nil
 
-    var systemPermissionManager: SystemPermissionManager? {
-        get { self[SystemPermissionManagerKey.self] }
-        set { self[SystemPermissionManagerKey.self] = newValue }
-    }
+    @Entry var systemPermissionManager: SystemPermissionManager?
 
-    var terminalLauncher: TerminalLauncher? {
-        get { self[TerminalLauncherKey.self] }
-        set { self[TerminalLauncherKey.self] = newValue }
-    }
+    @Entry var terminalLauncher: TerminalLauncher? = nil
 
-    var tailscaleService: TailscaleService? {
-        get { self[TailscaleServiceKey.self] }
-        set { self[TailscaleServiceKey.self] = newValue }
-    }
+    @Entry var tailscaleService: TailscaleService?
 
-    var cloudflareService: CloudflareService? {
-        get { self[CloudflareServiceKey.self] }
-        set { self[CloudflareServiceKey.self] = newValue }
-    }
+    @Entry var cloudflareService: CloudflareService? = nil
 }
 
 // MARK: - View Extensions

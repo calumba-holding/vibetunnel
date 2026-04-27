@@ -16,13 +16,13 @@ final class RemoteServicesStatusManager {
     private let checkInterval: TimeInterval = RemoteAccessConstants.statusCheckInterval
     private let logger = Logger(subsystem: BundleIdentifiers.loggerSubsystem, category: "RemoteServicesStatus")
 
-    struct TailscaleStatus: Equatable, Sendable {
+    struct TailscaleStatus: Equatable {
         let isInstalled: Bool
         let isRunning: Bool
         let hostname: String?
     }
 
-    struct CloudflareStatus: Equatable, Sendable {
+    struct CloudflareStatus: Equatable {
         let isInstalled: Bool
         let isRunning: Bool
         let publicUrl: String?

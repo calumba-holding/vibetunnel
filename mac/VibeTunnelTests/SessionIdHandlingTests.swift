@@ -6,30 +6,30 @@ import Testing
 struct SessionIdHandlingTests {
     // MARK: - Session ID Format Validation
 
-    @Test("Session IDs must be valid UUIDs", arguments: [
+    @Test(arguments: [
         "a37ea008-41f6-412f-bbba-f28f091267ce", // Valid UUID
         "00000000-0000-0000-0000-000000000000", // Valid nil UUID
         "550e8400-e29b-41d4-a716-446655440000", // Valid UUID v4
     ])
-    func validSessionIdFormat(sessionId: String) {
+    func `Session IDs must be valid UUIDs`(sessionId: String) {
         #expect(UUID(uuidString: sessionId) != nil)
     }
 
-    @Test("Invalid session ID formats are rejected", arguments: [
+    @Test(arguments: [
         "session_1234567890_abc123", // Old format from Swift server
         "e blob-http://127.0.0.1:4020/a37ea008c", // Corrupted format from bug
         "not-a-uuid", // Random string
         "", // Empty string
         "123" // Too short
     ])
-    func invalidSessionIdFormat(sessionId: String) {
+    func `Invalid session ID formats are rejected`(sessionId: String) {
         #expect(UUID(uuidString: sessionId) == nil)
     }
 
     // MARK: - Session ID Comparison Tests
 
-    @Test("Session IDs are case-insensitive for UUID comparison")
-    func sessionIdCaseInsensitivity() {
+    @Test
+    func `Session IDs are case-insensitive for UUID comparison`() {
         let id1 = "A37EA008-41F6-412F-BBBA-F28F091267CE"
         let id2 = "a37ea008-41f6-412f-bbba-f28f091267ce"
 
@@ -41,8 +41,8 @@ struct SessionIdHandlingTests {
 
     // MARK: - Real-World Scenario Tests
 
-    @Test("Parse session ID from various server responses")
-    func parseSessionIdFromResponses() throws {
+    @Test
+    func `Parse session ID from various server responses`() throws {
         // Test parsing session ID from different response formats
 
         struct SessionResponse: Codable {
@@ -66,7 +66,7 @@ struct SessionIdHandlingTests {
         ]
 
         for testCase in testCases {
-            let data = testCase.json.data(using: .utf8)!
+            let data = try #require(testCase.json.data(using: .utf8))
 
             if let expectedId = testCase.expectedId {
                 let response = try JSONDecoder().decode(SessionResponse.self, from: data)
@@ -81,8 +81,8 @@ struct SessionIdHandlingTests {
 
     // MARK: - URL Path Construction Tests
 
-    @Test("Session ID URL encoding")
-    func sessionIdUrlEncoding() {
+    @Test
+    func `Session ID URL encoding`() {
         // Ensure session IDs are properly encoded in URLs
         let sessionId = "a37ea008-41f6-412f-bbba-f28f091267ce"
         let baseURL = "http://localhost:4020"
@@ -96,8 +96,8 @@ struct SessionIdHandlingTests {
         #expect(URL(string: inputURL) != nil)
     }
 
-    @Test("Corrupted session ID in URL causes invalid URL")
-    func corruptedSessionIdInUrl() {
+    @Test
+    func `Corrupted session ID in URL causes invalid URL`() {
         // The bug showed a corrupted ID like "e blob-http://127.0.0.1:4020/uuid"
         let corruptedId = "e blob-http://127.0.0.1:4020/a37ea008-41f6-412f-bbba-f28f091267ce"
         let baseURL = "http://localhost:4020"
@@ -114,8 +114,8 @@ struct SessionIdHandlingTests {
 
     // MARK: - Session List Parsing Tests
 
-    @Test("Parse session list response")
-    func parseSessionList() throws {
+    @Test
+    func `Parse session list response`() throws {
         // Define a local type for parsing session JSON
         struct Session: Codable {
             let cmdline: [String]
@@ -155,12 +155,12 @@ struct SessionIdHandlingTests {
         }
         """
 
-        let data = sessionResponse.data(using: .utf8)!
+        let data = try #require(sessionResponse.data(using: .utf8))
         let sessions = try JSONDecoder().decode([String: Session].self, from: data)
 
         // Verify the session ID is a proper UUID
         #expect(sessions.count == 1)
-        let sessionId = sessions.keys.first!
+        let sessionId = try #require(sessions.keys.first)
         #expect(UUID(uuidString: sessionId) != nil)
 
         // Verify we can look up the session by its ID
@@ -173,7 +173,7 @@ struct SessionIdHandlingTests {
 // MARK: - Regression Test for Specific Bug
 
 @Test(.bug("https://github.com/example/issues/123"))
-func sessionIdMismatchBugFixed() async throws {
+func `session id mismatch bug fixed`() {
     // This test documents the specific bug that was fixed:
     // 1. Server generated session ID
     // 2. Client used the session ID for operations

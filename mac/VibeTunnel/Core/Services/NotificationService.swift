@@ -23,7 +23,9 @@ final class NotificationService: NSObject, @preconcurrency UNUserNotificationCen
     private var notificationCleanupTimer: Timer?
 
     /// Public property to check the WS v3 event stream connection status
-    var isEventStreamConnected: Bool { self.isConnected }
+    var isEventStreamConnected: Bool {
+        self.isConnected
+    }
 
     /// Notification types that can be enabled/disabled
     struct NotificationPreferences {

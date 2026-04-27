@@ -156,17 +156,8 @@ struct AsyncErrorBoundary<Content: View>: View {
     }
 }
 
-// MARK: - Environment Values
-
-private struct AsyncErrorHandlerKey: EnvironmentKey {
-    nonisolated(unsafe) static let defaultValue = AsyncErrorHandler { _ in }
-}
-
 extension EnvironmentValues {
-    var asyncErrorHandler: AsyncErrorHandler {
-        get { self[AsyncErrorHandlerKey.self] }
-        set { self[AsyncErrorHandlerKey.self] = newValue }
-    }
+    @Entry var asyncErrorHandler: AsyncErrorHandler = AsyncErrorHandler { _ in }
 }
 
 /// Handler for async errors propagated through the environment.

@@ -6,8 +6,8 @@ import Testing
 
 @Suite("Process Lifecycle Tests", .tags(.reliability))
 struct ProcessLifecycleTests {
-    @Test("Basic process spawning validation", .tags(.attachmentTests))
-    func basicProcessSpawning() async throws {
+    @Test(.tags(.attachmentTests))
+    func `Basic process spawning validation`() async throws {
         let result = try await runProcessWithTimeout(
             executablePath: "/bin/echo",
             arguments: ["Hello from VibeTunnel test"],
@@ -17,8 +17,8 @@ struct ProcessLifecycleTests {
         #expect(!result.output.isEmpty)
     }
 
-    @Test("Process error handling", .tags(.attachmentTests))
-    func processErrorHandling() async throws {
+    @Test(.tags(.attachmentTests))
+    func `Process error handling`() async throws {
         let result = try await runProcessWithTimeout(
             executablePath: "/bin/sh",
             arguments: ["-c", "exit 1"],
@@ -28,8 +28,8 @@ struct ProcessLifecycleTests {
         #expect(result.exitStatus != 0)
     }
 
-    @Test("Shell command execution", .tags(.attachmentTests, .integration))
-    func shellCommandExecution() async throws {
+    @Test(.tags(.attachmentTests, .integration))
+    func `Shell command execution`() throws {
         // Test shell command execution patterns used in VibeTunnel
 
         let process = Process()
@@ -52,10 +52,9 @@ struct ProcessLifecycleTests {
     }
 
     @Test(
-        "Network command validation",
         .tags(.attachmentTests, .requiresNetwork),
         .enabled(if: TestConditions.hasNetworkInterfaces()))
-    func networkCommandValidation() async throws {
+    func `Network command validation`() throws {
         // Test network-related commands that VibeTunnel might use
 
         let process = Process()

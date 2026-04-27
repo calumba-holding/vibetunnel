@@ -16,8 +16,8 @@ final class SessionMonitorTests {
 
     // MARK: - JSON Decoding Tests
 
-    @Test("detectEndedSessions identifies completed sessions")
-    func detectEndedSessions() throws {
+    @Test
+    func `detectEndedSessions identifies completed sessions`() {
         let running = ServerSessionInfo(
             id: "one",
             name: "bash",
@@ -81,8 +81,8 @@ final class SessionMonitorTests {
         #expect(ended.first?.id == "one")
     }
 
-    @Test("Decode valid session with all fields")
-    func decodeValidSessionAllFields() throws {
+    @Test
+    func `Decode valid session with all fields`() throws {
         let json = """
         {
             "id": "test-session-123",
@@ -100,7 +100,7 @@ final class SessionMonitorTests {
         }
         """
 
-        let data = json.data(using: .utf8)!
+        let data = try #require(json.data(using: .utf8))
         let session = try JSONDecoder().decode(ServerSessionInfo.self, from: data)
 
         #expect(session.id == "test-session-123")
@@ -118,8 +118,8 @@ final class SessionMonitorTests {
         #expect(session.isRunning == true)
     }
 
-    @Test("Decode session with minimal fields")
-    func decodeSessionMinimalFields() throws {
+    @Test
+    func `Decode session with minimal fields`() throws {
         let json = """
         {
             "id": "minimal-session",
@@ -132,7 +132,7 @@ final class SessionMonitorTests {
         }
         """
 
-        let data = json.data(using: .utf8)!
+        let data = try #require(json.data(using: .utf8))
         let session = try JSONDecoder().decode(ServerSessionInfo.self, from: data)
 
         #expect(session.id == "minimal-session")
@@ -148,8 +148,8 @@ final class SessionMonitorTests {
         #expect(session.isRunning == false)
     }
 
-    @Test("Decode session with command array bug reproduction")
-    func decodeSessionCommandArrayBug() throws {
+    @Test
+    func `Decode session with command array bug reproduction`() throws {
         // This test reproduces the exact bug where command was an array
         let json = """
         {
@@ -167,7 +167,7 @@ final class SessionMonitorTests {
         }
         """
 
-        let data = json.data(using: .utf8)!
+        let data = try #require(json.data(using: .utf8))
         let session = try JSONDecoder().decode(ServerSessionInfo.self, from: data)
 
         // Verify command array is properly decoded
@@ -179,8 +179,8 @@ final class SessionMonitorTests {
         #expect(session.isRunning == true)
     }
 
-    @Test("Decode session with activity status")
-    func decodeSessionWithActivityStatus() throws {
+    @Test
+    func `Decode session with activity status`() throws {
         let json = """
         {
             "id": "activity-session",
@@ -197,7 +197,7 @@ final class SessionMonitorTests {
         }
         """
 
-        let data = json.data(using: .utf8)!
+        let data = try #require(json.data(using: .utf8))
         let session = try JSONDecoder().decode(ServerSessionInfo.self, from: data)
 
         #expect(session.activityStatus?.isActive == true)
@@ -205,8 +205,8 @@ final class SessionMonitorTests {
         #expect(session.isActivityActive == true)
     }
 
-    @Test("isActivityActive uses isActive only")
-    func isActivityActiveUsesIsActiveOnly() throws {
+    @Test
+    func `isActivityActive uses isActive only`() throws {
         let json = """
         {
             "id": "idle-session",
@@ -223,14 +223,14 @@ final class SessionMonitorTests {
         }
         """
 
-        let data = json.data(using: .utf8)!
+        let data = try #require(json.data(using: .utf8))
         let session = try JSONDecoder().decode(ServerSessionInfo.self, from: data)
 
         #expect(session.isActivityActive == false)
     }
 
-    @Test("Decode session array from API response")
-    func decodeSessionArrayFromAPI() throws {
+    @Test
+    func `Decode session array from API response`() throws {
         let json = """
         [
             {
@@ -268,7 +268,7 @@ final class SessionMonitorTests {
         ]
         """
 
-        let data = json.data(using: .utf8)!
+        let data = try #require(json.data(using: .utf8))
         let sessions = try JSONDecoder().decode([ServerSessionInfo].self, from: data)
 
         #expect(sessions.count == 3)
@@ -294,17 +294,17 @@ final class SessionMonitorTests {
 
     // MARK: - Edge Case Tests
 
-    @Test("Handle empty JSON array response")
-    func handleEmptyArrayResponse() throws {
+    @Test
+    func `Handle empty JSON array response`() throws {
         let json = "[]"
-        let data = json.data(using: .utf8)!
+        let data = try #require(json.data(using: .utf8))
         let sessions = try JSONDecoder().decode([ServerSessionInfo].self, from: data)
 
         #expect(sessions.isEmpty)
     }
 
-    @Test("Handle malformed JSON", .tags(.reliability))
-    func handleMalformedJSON() {
+    @Test(.tags(.reliability))
+    func `Handle malformed JSON`() throws {
         let malformedJson = """
         {
             "id": "broken",
@@ -314,15 +314,15 @@ final class SessionMonitorTests {
         }
         """
 
-        let data = malformedJson.data(using: .utf8)!
+        let data = try #require(malformedJson.data(using: .utf8))
 
         #expect(throws: (any Error).self) {
             _ = try JSONDecoder().decode(ServerSessionInfo.self, from: data)
         }
     }
 
-    @Test("Handle missing required fields")
-    func handleMissingRequiredFields() {
+    @Test
+    func `Handle missing required fields`() throws {
         let incompleteJson = """
         {
             "id": "incomplete",
@@ -330,15 +330,15 @@ final class SessionMonitorTests {
         }
         """
 
-        let data = incompleteJson.data(using: .utf8)!
+        let data = try #require(incompleteJson.data(using: .utf8))
 
         #expect(throws: (any Error).self) {
             _ = try JSONDecoder().decode(ServerSessionInfo.self, from: data)
         }
     }
 
-    @Test("Handle unexpected session status values")
-    func handleUnexpectedStatus() throws {
+    @Test
+    func `Handle unexpected session status values`() throws {
         // The status field is just a string, so any value should work
         let json = """
         {
@@ -352,7 +352,7 @@ final class SessionMonitorTests {
         }
         """
 
-        let data = json.data(using: .utf8)!
+        let data = try #require(json.data(using: .utf8))
         let session = try JSONDecoder().decode(ServerSessionInfo.self, from: data)
 
         #expect(session.status == "zombie")
@@ -361,8 +361,8 @@ final class SessionMonitorTests {
 
     // MARK: - isRunning Calculation Tests
 
-    @Test("isRunning calculation for different statuses")
-    func isRunningCalculation() throws {
+    @Test
+    func `isRunning calculation for different statuses`() throws {
         let statuses = [
             ("running", true),
             ("exited", false),
@@ -387,7 +387,7 @@ final class SessionMonitorTests {
             }
             """
 
-            let data = json.data(using: .utf8)!
+            let data = try #require(json.data(using: .utf8))
             let session = try JSONDecoder().decode(ServerSessionInfo.self, from: data)
 
             #expect(
@@ -398,8 +398,8 @@ final class SessionMonitorTests {
 
     // MARK: - Remote Session Tests
 
-    @Test("Decode remote session with HQ mode fields")
-    func decodeRemoteSession() throws {
+    @Test
+    func `Decode remote session with HQ mode fields`() throws {
         let json = """
         {
             "id": "remote-session-456",
@@ -417,7 +417,7 @@ final class SessionMonitorTests {
         }
         """
 
-        let data = json.data(using: .utf8)!
+        let data = try #require(json.data(using: .utf8))
         let session = try JSONDecoder().decode(ServerSessionInfo.self, from: data)
 
         #expect(session.source == "remote")
@@ -427,8 +427,8 @@ final class SessionMonitorTests {
 
     // MARK: - Session Count Tests
 
-    @Test("Session count calculation")
-    func sessionCount() async {
+    @Test
+    func `Session count calculation`() async {
         // Force a refresh to get current state
         await self.monitor.refresh()
 
@@ -451,8 +451,8 @@ final class SessionMonitorTests {
 
     // MARK: - Cache Behavior Tests
 
-    @Test("Cache behavior", .tags(.performance))
-    func cacheBehavior() async {
+    @Test(.tags(.performance))
+    func `Cache behavior`() async {
         // First call should fetch
         _ = await self.monitor.getSessions()
 
@@ -463,8 +463,8 @@ final class SessionMonitorTests {
         #expect(cachedSessions.isEmpty || !cachedSessions.isEmpty)
     }
 
-    @Test("Force refresh clears cache")
-    func forceRefresh() async {
+    @Test
+    func `Force refresh clears cache`() async {
         // Get initial sessions
         let initialSessions = await monitor.getSessions()
 
@@ -480,8 +480,8 @@ final class SessionMonitorTests {
 
     // MARK: - Mock API Response Tests
 
-    @Test("Parse real-world API response")
-    func parseRealWorldResponse() throws {
+    @Test
+    func `Parse real-world API response`() throws {
         // This mimics an actual response from the server
         let realWorldJson = """
         [
@@ -522,7 +522,7 @@ final class SessionMonitorTests {
         ]
         """
 
-        let data = realWorldJson.data(using: .utf8)!
+        let data = try #require(realWorldJson.data(using: .utf8))
         let sessions = try JSONDecoder().decode([ServerSessionInfo].self, from: data)
 
         #expect(sessions.count == 3)
@@ -551,8 +551,8 @@ final class SessionMonitorTests {
 
     // MARK: - Concurrent Access Tests
 
-    @Test("Concurrent session access", .tags(.concurrency))
-    func concurrentAccess() async {
+    @Test(.tags(.concurrency))
+    func `Concurrent session access`() async {
         await withTaskGroup(of: [String: ServerSessionInfo].self) { group in
             // Multiple concurrent getSessions calls
             for _ in 0..<5 {
@@ -577,8 +577,8 @@ final class SessionMonitorTests {
 
     // MARK: - Performance Tests
 
-    @Test("Cache performance", .tags(.performance))
-    func cachePerformance() async throws {
+    @Test(.tags(.performance))
+    func `Cache performance`() async {
         // Skip this test on macOS < 13
         #if os(macOS)
         if #unavailable(macOS 13.0) {

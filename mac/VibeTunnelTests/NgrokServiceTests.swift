@@ -7,26 +7,26 @@ struct NgrokServiceTests {
     let testAuthToken = "test_auth_token_123"
     let testPort = 8888
 
-    @Test("Singleton instance")
+    @Test
     @MainActor
-    func singletonInstance() {
+    func `Singleton instance`() {
         let instance1 = NgrokService.shared
         let instance2 = NgrokService.shared
         #expect(instance1 === instance2)
     }
 
-    @Test("Initial state")
+    @Test
     @MainActor
-    func initialState() {
+    func `Initial state`() {
         let service = NgrokService.shared
         #expect(service.isActive == false)
         #expect(service.publicUrl == nil)
         #expect(service.tunnelStatus == nil)
     }
 
-    @Test("Auth token management")
+    @Test
     @MainActor
-    func authTokenManagement() {
+    func `Auth token management`() {
         let service = NgrokService.shared
 
         // Save original token
@@ -46,9 +46,9 @@ struct NgrokServiceTests {
         service.authToken = originalToken
     }
 
-    @Test("Start without auth token fails")
+    @Test
     @MainActor
-    func startWithoutAuthToken() async throws {
+    func `Start without auth token fails`() async throws {
         let service = NgrokService.shared
 
         // Save original token
@@ -70,9 +70,9 @@ struct NgrokServiceTests {
         service.authToken = originalToken
     }
 
-    @Test("Stop when not running")
+    @Test
     @MainActor
-    func stopWhenNotRunning() async throws {
+    func `Stop when not running`() async throws {
         let service = NgrokService.shared
 
         // Ensure not running
@@ -87,18 +87,18 @@ struct NgrokServiceTests {
         #expect(service.publicUrl == nil)
     }
 
-    @Test("Is running check")
+    @Test
     @MainActor
-    func isRunningCheck() async {
+    func `Is running check`() async {
         let service = NgrokService.shared
 
         let running = await service.isRunning()
         #expect(running == service.isActive)
     }
 
-    @Test("Get status when inactive")
+    @Test
     @MainActor
-    func getStatusWhenInactive() async {
+    func `Get status when inactive`() async {
         let service = NgrokService.shared
 
         // Ensure not running
@@ -110,8 +110,8 @@ struct NgrokServiceTests {
         #expect(status == nil)
     }
 
-    @Test("NgrokError descriptions")
-    func ngrokErrorDescriptions() {
+    @Test
+    func `NgrokError descriptions`() throws {
         let errors: [NgrokError] = [
             .notInstalled,
             .authTokenMissing,
@@ -122,12 +122,12 @@ struct NgrokServiceTests {
 
         for error in errors {
             #expect(error.errorDescription != nil)
-            #expect(!error.errorDescription!.isEmpty)
+            #expect(try !(#require(error.errorDescription?.isEmpty)))
         }
     }
 
-    @Test("NgrokError equality")
-    func ngrokErrorEquality() {
+    @Test
+    func `NgrokError equality`() {
         #expect(NgrokError.notInstalled == NgrokError.notInstalled)
         #expect(NgrokError.authTokenMissing == NgrokError.authTokenMissing)
         #expect(NgrokError.tunnelCreationFailed("a") == NgrokError.tunnelCreationFailed("a"))

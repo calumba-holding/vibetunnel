@@ -108,7 +108,9 @@ public enum UpdateChannel: String, CaseIterable, Codable, Sendable {
 // MARK: - Identifiable Conformance
 
 extension UpdateChannel: Identifiable {
-    public var id: String { rawValue }
+    public var id: String {
+        rawValue
+    }
 }
 
 // MARK: - UserDefaults Integration
