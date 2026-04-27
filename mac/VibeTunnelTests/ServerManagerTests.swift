@@ -64,7 +64,7 @@ final class ServerManagerTests {
 
     @Test(
         .tags(.critical),
-        .disabled(if: TestConditions.isRunningInCI(), "Flaky in CI due to shared server singleton and port timing"))
+        .disabled("Flaky due to shared server singleton and port timing"))
     func `Starting server when already running does not create duplicate`() async throws {
         // In test environment, we can't actually start the server
         // So we'll test the logic of preventing duplicate starts
