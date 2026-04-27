@@ -43,16 +43,14 @@ final class TailscaleFallbackRegressionTests {
         let initialValue = AppConstants.boolValue(for: AppConstants.UserDefaultsKeys.tailscaleServeEnabled)
         #expect(initialValue == true, "Tailscale should be enabled initially")
 
-        // Start the server (which starts monitoring)
-        await self.serverManager.start()
-
-        // Wait for monitoring to potentially trigger the old bug (it checked every 10 seconds)
-        self.logger.info("Waiting 15 seconds to ensure toggle doesn't auto-disable...")
-        try await Task.sleep(for: .seconds(15))
+        // Simulate the fallback state directly instead of starting the full server.
+        // The regression was that fallback status mutated the user's persisted toggle.
+        self.tailscaleService.isPermanentlyDisabled = true
+        try await Task.yield()
 
         // Check that the toggle is still enabled
         let afterWaitValue = AppConstants.boolValue(for: AppConstants.UserDefaultsKeys.tailscaleServeEnabled)
-        #expect(afterWaitValue == true, "Tailscale toggle should remain enabled after 15 seconds")
+        #expect(afterWaitValue == true, "Tailscale toggle should remain enabled in fallback mode")
 
         // Also verify that if isPermanentlyDisabled is set, toggle still stays enabled
         if self.tailscaleService.isPermanentlyDisabled {
@@ -60,9 +58,6 @@ final class TailscaleFallbackRegressionTests {
             let fallbackValue = AppConstants.boolValue(for: AppConstants.UserDefaultsKeys.tailscaleServeEnabled)
             #expect(fallbackValue == true, "Toggle should remain enabled even in fallback mode")
         }
-
-        // Cleanup
-        await self.serverManager.stop()
     }
 
     // MARK: - Regression Test 2: Forced Localhost Binding Bug

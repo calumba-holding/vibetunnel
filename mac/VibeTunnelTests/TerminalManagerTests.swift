@@ -412,7 +412,8 @@ struct TerminalManagerTests {
 
         for error in errors {
             #expect(error.errorDescription != nil)
-            #expect(try !(#require(error.errorDescription?.isEmpty)))
+            let description = try #require(error.errorDescription)
+            #expect(!description.isEmpty)
         }
     }
 

@@ -46,7 +46,8 @@ struct CloudflareServiceTests {
         // If installed, cloudflaredPath should be set
         if isInstalled {
             #expect(service.cloudflaredPath != nil)
-            #expect(try !(#require(service.cloudflaredPath?.isEmpty)))
+            let cloudflaredPath = try #require(service.cloudflaredPath)
+            #expect(!cloudflaredPath.isEmpty)
         }
     }
 
