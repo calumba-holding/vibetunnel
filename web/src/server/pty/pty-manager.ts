@@ -1395,7 +1395,7 @@ export class PtyManager extends EventEmitter {
    */
   private async detachFromTmux(sessionId: string): Promise<boolean> {
     const session = this.sessions.get(sessionId);
-    if (!session || !session.isTmuxAttachment || !session.ptyProcess) {
+    if (!session?.isTmuxAttachment || !session.ptyProcess) {
       return false;
     }
 

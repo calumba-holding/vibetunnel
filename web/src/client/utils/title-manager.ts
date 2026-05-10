@@ -68,7 +68,7 @@ export class TitleManager {
     updateFromUrl();
 
     // Monitor DOM changes for session count updates
-    let mutationTimeout: NodeJS.Timeout | null = null;
+    let mutationTimeout: ReturnType<typeof setTimeout> | null = null;
     const observer = new MutationObserver(() => {
       if (mutationTimeout) clearTimeout(mutationTimeout);
       mutationTimeout = setTimeout(updateFromUrl, 100);

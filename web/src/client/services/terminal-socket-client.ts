@@ -205,7 +205,9 @@ export class TerminalSocketClient {
 
   private safeSend(buffer: Uint8Array) {
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-      this.ws.send(buffer);
+      const payload = new ArrayBuffer(buffer.byteLength);
+      new Uint8Array(payload).set(buffer);
+      this.ws.send(payload);
     } else {
       this.messageQueue.push(buffer);
       if (this.initialized && !this.ws) this.connect();

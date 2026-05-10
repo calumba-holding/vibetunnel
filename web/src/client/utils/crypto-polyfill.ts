@@ -38,21 +38,11 @@ export function installCryptoPolyfill(): void {
 
     // Insert hyphens to form proper UUID
     return [
-      hex
-        .slice(0, 4)
-        .join(''), // 8 chars
-      hex
-        .slice(4, 6)
-        .join(''), // 4 chars
-      hex
-        .slice(6, 8)
-        .join(''), // 4 chars
-      hex
-        .slice(8, 10)
-        .join(''), // 4 chars
-      hex
-        .slice(10, 16)
-        .join(''), // 12 chars
+      hex.slice(0, 4).join(''), // 8 chars
+      hex.slice(4, 6).join(''), // 4 chars
+      hex.slice(6, 8).join(''), // 4 chars
+      hex.slice(8, 10).join(''), // 4 chars
+      hex.slice(10, 16).join(''), // 12 chars
     ].join('-') as `${string}-${string}-${string}-${string}-${string}`;
   };
 

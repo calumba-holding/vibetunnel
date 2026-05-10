@@ -415,9 +415,7 @@ export class SessionListPage extends BasePage {
           () => {
             const form = document.querySelector('session-create-form');
             // Modal is closed if form doesn't exist or visible is false
-            return (
-              !form || !form.hasAttribute('visible') || form.getAttribute('visible') === 'false'
-            );
+            return !form?.hasAttribute('visible') || form.getAttribute('visible') === 'false';
           },
           undefined,
           { timeout: 10000 }

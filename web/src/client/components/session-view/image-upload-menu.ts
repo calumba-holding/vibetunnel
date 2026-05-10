@@ -86,7 +86,7 @@ export class ImageUploadMenu extends LitElement {
   private async checkClipboardContent() {
     try {
       // Check if clipboard API is available and we have permission
-      if (!navigator.clipboard || !navigator.clipboard.read) {
+      if (!navigator.clipboard?.read) {
         this.hasClipboardImage = false;
         return;
       }

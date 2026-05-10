@@ -133,7 +133,7 @@ export class SessionMonitor extends EventEmitter {
    */
   public handleCommandCompletion(sessionId: string, exitCode: number) {
     const session = this.sessions.get(sessionId);
-    if (!session || !session.commandStartTime || !session.lastCommand) return;
+    if (!session?.commandStartTime || !session.lastCommand) return;
 
     const duration = Date.now() - session.commandStartTime.getTime();
     session.lastExitCode = exitCode;

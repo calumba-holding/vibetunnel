@@ -567,7 +567,7 @@ export class DirectKeyboardManager extends ManagerEventEmitter {
       });
 
       // Check if we're in a secure context (HTTPS/localhost/PWA)
-      if (window.isSecureContext && navigator.clipboard && navigator.clipboard.readText) {
+      if (window.isSecureContext && navigator.clipboard?.readText) {
         try {
           logger.log('Secure context detected - trying modern clipboard API...');
           const text = await navigator.clipboard.readText();

@@ -627,7 +627,7 @@ export class Settings extends LitElement {
 
                     <!-- Debug section (only in development) -->
                     ${
-                      process.env.NODE_ENV === 'development'
+                      typeof process !== 'undefined' && process.env?.NODE_ENV === 'development'
                         ? html`
                       <div class="mt-3 pt-3 border-t border-border/50">
                         <p class="text-xs text-muted mb-2">Debug Information</p>

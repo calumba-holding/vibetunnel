@@ -11,7 +11,7 @@ import { serverConfigService } from './server-config-service';
 import { serverEventService } from './server-event-service';
 
 // Re-export types for components
-export type { PushSubscription, NotificationPreferences };
+export type { NotificationPreferences, PushSubscription };
 
 const logger = createLogger('push-notification-service');
 

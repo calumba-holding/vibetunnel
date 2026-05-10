@@ -3,6 +3,7 @@
 /// <reference lib="webworker" />
 
 declare const self: ServiceWorkerGlobalScope;
+
 export {};
 
 // Notification tag prefix for VibeTunnel notifications

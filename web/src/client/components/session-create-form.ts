@@ -115,8 +115,8 @@ export class SessionCreateForm extends LitElement {
   // biome-ignore lint/correctness/noUnusedPrivateClassMembers: Used in checkFollowMode method
   @state() private isCheckingFollowMode = false;
 
-  private completionsDebounceTimer?: NodeJS.Timeout;
-  private gitCheckDebounceTimer?: NodeJS.Timeout;
+  private completionsDebounceTimer?: ReturnType<typeof setTimeout>;
+  private gitCheckDebounceTimer?: ReturnType<typeof setTimeout>;
   private autocompleteManager!: AutocompleteManager;
   private repositoryService?: RepositoryService;
   private sessionService?: SessionService;

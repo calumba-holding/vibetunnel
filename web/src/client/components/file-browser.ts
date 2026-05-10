@@ -465,7 +465,7 @@ export class FileBrowser extends LitElement {
 
   private renderDiff() {
     // For new files (added or untracked), we might not have a diff but we have diffContent
-    if (!this.diffContent && (!this.diff || !this.diff.diff)) {
+    if (!this.diffContent && !this.diff?.diff) {
       return html`
         <div class="flex items-center justify-center h-full text-text-muted">
           No changes in this file
