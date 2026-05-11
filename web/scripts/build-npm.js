@@ -544,6 +544,14 @@ function validatePackageHybrid() {
     } else {
       console.log('  ✅ Postinstall script configured');
     }
+
+    // Node 25+ and other ABI gaps must be able to compile the bundled node-pty
+    // fallback from source when no prebuild exists.
+    if (packageJson.dependencies && packageJson.dependencies['node-addon-api']) {
+      console.log('  ✅ node-addon-api listed for node-pty source fallback');
+    } else {
+      errors.push('Missing node-addon-api dependency (node-pty source fallback will fail)');
+    }
   }
   
   // Report results
