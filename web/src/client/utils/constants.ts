@@ -43,6 +43,7 @@ export const Z_INDEX = {
   MOBILE_INPUT_OVERLAY: 40,
   CTRL_ALPHA_OVERLAY: 45,
   TERMINAL_QUICK_KEYS: 48,
+  SESSION_EXITED_OVERLAY: 49, // Above terminal chrome, below interactive popovers and modals
 
   // Dropdowns and popovers (50-99)
   WIDTH_SELECTOR_DROPDOWN: 60,
@@ -53,7 +54,6 @@ export const Z_INDEX = {
   MODAL_BACKDROP: 100,
   MODAL: 105,
   FILE_PICKER: 110,
-  SESSION_EXITED_OVERLAY: 120,
   NOTIFICATION: 150, // Notifications appear above modals but below file browser
 
   // Special high-priority overlays (200+)
