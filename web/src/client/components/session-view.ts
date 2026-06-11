@@ -99,6 +99,9 @@ export class SessionView extends LitElement {
 
   private instanceId = `session-view-${Math.random().toString(36).substr(2, 9)}`;
   private _updateTerminalTransformTimeout: ReturnType<typeof setTimeout> | null = null;
+  // Measured height of the quick-keys bar; fed into --quickkeys-height so the terminal
+  // reserves space for it instead of letting it cover the bottom rows.
+  private quickKeysHeight = 0;
   private terminalOutputListeners: Set<(data: string) => void> = new Set();
 
   private createLifecycleEventManagerCallbacks(): LifecycleEventManagerCallbacks {
@@ -458,6 +461,7 @@ export class SessionView extends LitElement {
     this.checkOrientation();
     // Request update to re-render with new safe area classes
     this.requestUpdate();
+    this.updateTerminalTransform();
   }
 
   private getTerminalElement(): Terminal | null {
@@ -744,9 +748,11 @@ export class SessionView extends LitElement {
     // Update terminal transform immediately
     this.updateTerminalTransform();
 
-    // Focus the hidden input synchronously - critical for iOS Safari
-    // Must be called directly in the click handler without any delays
-    this.directKeyboardManager.focusHiddenInput();
+    // Focus the hidden input synchronously - critical for iOS Safari.
+    // forceRecreate=true: the user explicitly tapped TAP to (re)open the keyboard, so
+    // recreate the input so iOS reliably reopens it even if the soft keyboard was
+    // dismissed while the quick keys stayed open (avoids the intermittent race).
+    this.directKeyboardManager.focusHiddenInput(true);
 
     // Request update after all synchronous operations
     this.requestUpdate();
@@ -827,6 +833,16 @@ export class SessionView extends LitElement {
 
         // Notify terminal to resize
         requestAnimationFrame(() => {
+          // Reserve space for the quick-keys bar so it stops covering the terminal's
+          // bottom rows (which also made the top unreachable). Measure it and set the
+          // CSS var synchronously before fitTerminal recomputes the row count.
+          const grid = this.querySelector('.session-view-grid') as HTMLElement | null;
+          const qkEl = this.querySelector('.terminal-quick-keys-container') as HTMLElement | null;
+          const qkH =
+            state.showQuickKeys && qkEl ? Math.round(qkEl.getBoundingClientRect().height) : 0;
+          this.quickKeysHeight = qkH;
+          grid?.style.setProperty('--quickkeys-height', `${qkH}px`);
+
           const terminal = this.getTerminalElement();
           if (terminal) {
             // Notify terminal of size change
@@ -1175,16 +1191,15 @@ export class SessionView extends LitElement {
             margin-bottom: 0 !important;
           }
           
-          /* Desktop: Keep transform for quick keys */
+          /* The grid reserves quick-key height, so legacy transforms and padding would
+             shift the terminal outside its row and clip content. */
           .terminal-area[data-quickkeys-visible="true"] {
-            transform: translateY(-110px);
-            transition: transform 0.2s ease-out;
+            transform: none;
           }
-          
-          /* Desktop: Add padding when keyboard is visible */
+
           .terminal-area[data-quickkeys-visible="true"] vibe-terminal,
           .terminal-area[data-quickkeys-visible="true"] vibe-terminal-binary {
-            padding-bottom: 70px !important;
+            padding-bottom: 0 !important;
             box-sizing: border-box;
           }
           
@@ -1217,7 +1232,17 @@ export class SessionView extends LitElement {
             background-color: rgb(var(--color-bg)) !important;
             font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
           }
-          
+
+          /* Mobile: when the quick keys are up, shrink the grid so the terminal reserves
+             space for the fixed quick-keys bar instead of being covered (the bottom rows
+             were hidden and the top became unreachable). We subtract ONLY the quick-keys
+             height — NOT the keyboard height — because the viewport uses
+             interactive-widget=resizes-content, so 100dvh already shrinks with the iOS
+             keyboard; subtracting it again double-counted and left a large empty gap. */
+          .session-view-grid[data-keyboard-visible="true"] {
+            height: calc(100dvh - var(--quickkeys-height, 0px)) !important;
+          }
+
           .session-header-area {
             /* Use mobile-terminal-header styles */
             flex-shrink: 0 !important;
@@ -1264,7 +1289,7 @@ export class SessionView extends LitElement {
             bottom: 0 !important;
             z-index: 10 !important;
           }
-          
+
           /* Mobile: Overlay positioning */
           .overlay-container {
             position: absolute !important;
@@ -1275,6 +1300,18 @@ export class SessionView extends LitElement {
             pointer-events: none !important;
             z-index: 20 !important;
           }
+        }
+
+        /* <mobile-action-bar> renders fixed content; its host must not consume grid or
+           flex space, including when a phone is wider than the CSS mobile breakpoint. */
+        .session-view-grid[data-mobile="true"] > mobile-action-bar {
+          flex-shrink: 0 !important;
+          height: 0 !important;
+          min-height: 0 !important;
+          padding: 0 !important;
+          margin: 0 !important;
+          border: none !important;
+          overflow: visible !important;
         }
         
         .overlay-container > * {
@@ -1293,7 +1330,8 @@ export class SessionView extends LitElement {
       <div class="bg-bg-secondary" style="padding-top: env(safe-area-inset-top);">
         <div
           class="session-view-grid"
-          style="outline: none !important; box-shadow: none !important; --keyboard-height: ${uiState.keyboardHeight}px; --quickkeys-height: 0px;"
+          style="outline: none !important; box-shadow: none !important; --keyboard-height: ${uiState.keyboardHeight}px; --quickkeys-height: ${uiState.showQuickKeys ? this.quickKeysHeight : 0}px;"
+          data-mobile="${uiState.isMobile ? 'true' : 'false'}"
           data-keyboard-visible="${uiState.keyboardHeight > 0 || uiState.showQuickKeys ? 'true' : 'false'}"
         >
         <!-- Session Header Area -->
@@ -1436,7 +1474,7 @@ export class SessionView extends LitElement {
           uiState.isMobile
             ? html`
           <mobile-action-bar
-            .visible=${true}
+            .visible=${!uiState.showQuickKeys}
             .session=${this.session}
             .keyboardVisible=${uiState.keyboardHeight > 0}
             .keyboardHeight=${uiState.keyboardHeight}
@@ -1549,6 +1587,7 @@ export class SessionView extends LitElement {
         style="position: fixed !important; bottom: 0 !important; left: 0 !important; right: 0 !important; z-index: ${Z_INDEX.TERMINAL_QUICK_KEYS} !important;"
         .visible=${uiState.isMobile && uiState.useDirectKeyboard && uiState.showQuickKeys && !uiState.chatMode}
         .onKeyPress=${(key: string) => this.directKeyboardManager.handleQuickKeyPress(key)}
+        @quick-keys-layout-change=${() => this.updateTerminalTransform()}
       ></terminal-quick-keys>
 
       <!-- Mobile Input Controls (only show when direct keyboard is disabled) -->

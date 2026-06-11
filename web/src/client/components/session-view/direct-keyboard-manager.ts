@@ -50,6 +50,11 @@ export interface DirectKeyboardCallbacks {
 export class DirectKeyboardManager extends ManagerEventEmitter {
   private hiddenInput: HTMLInputElement | null = null;
   private focusRetentionInterval: number | null = null;
+  // While reopening the keyboard via TAP, suppress all automatic re-focus (interval,
+  // focus handler, blur re-focus) so they don't make iOS think the field is already
+  // focused and refuse to show the keyboard. Cleared shortly after the tap.
+  private reopeningKeyboard = false;
+  private keyboardReopenTimeout: ReturnType<typeof setTimeout> | null = null;
   private inputManager: InputManager | null = null;
   private sessionViewElement: HTMLElement | null = null;
   private callbacks: DirectKeyboardCallbacks | null = null;
@@ -121,7 +126,7 @@ export class DirectKeyboardManager extends ManagerEventEmitter {
     }
   }
 
-  focusHiddenInput(): void {
+  focusHiddenInput(forceRecreate = false): void {
     logger.log('Entering keyboard mode');
 
     // Enter keyboard mode
@@ -171,17 +176,55 @@ export class DirectKeyboardManager extends ManagerEventEmitter {
       document.addEventListener('pointerdown', this.captureClickHandler, true);
     }
 
-    // Start focus retention immediately
+    // Stop any running focus-retention BEFORE focusing. The 100ms interval re-focuses
+    // the input, and when it fires right before the tap iOS thinks the field is already
+    // focused and refuses to show the keyboard — that's the random "TAP doesn't open the
+    // keyboard" behaviour. Restart retention shortly after, once the keyboard is up.
     if (this.focusRetentionInterval) {
       clearInterval(this.focusRetentionInterval);
+      this.focusRetentionInterval = null;
     }
-    this.startFocusRetention();
 
-    // Ensure input is ready and focus it synchronously
-    this.ensureHiddenInputVisible();
+    this.cancelKeyboardReopen();
+
+    // Suppress automatic re-focus while iOS is showing the keyboard (TAP path only).
+    if (forceRecreate) {
+      this.reopeningKeyboard = true;
+    }
+
+    // Ensure input is ready and focus it synchronously (recreated when forceRecreate).
+    this.ensureHiddenInputVisible(forceRecreate);
+
+    // Restart focus retention after the keyboard has had time to appear, so it doesn't
+    // steal the moment iOS uses to show the keyboard.
+    if (forceRecreate) {
+      this.keyboardReopenTimeout = setTimeout(() => {
+        this.keyboardReopenTimeout = null;
+        this.reopeningKeyboard = false;
+        if (this.keyboardMode && !this.focusRetentionInterval) {
+          this.startFocusRetention();
+        }
+      }, 500);
+    } else {
+      this.startFocusRetention();
+    }
   }
 
-  ensureHiddenInputVisible(): void {
+  ensureHiddenInputVisible(forceRecreate = false): void {
+    // iOS won't reopen the soft keyboard on a plain focus() of an input it considers
+    // already focused — and our own blur-handler re-focuses the input ~50ms after the
+    // keyboard is dismissed while the quick keys stay open. That race made the TAP
+    // button reopen the keyboard only intermittently. So when the user explicitly taps
+    // TAP (forceRecreate), recreate the input unconditionally: iOS treats a brand-new
+    // field as fresh and reliably shows the keyboard.
+    if (this.hiddenInput && forceRecreate) {
+      const stale = this.hiddenInput;
+      // Null it first so the stale input's blur handler won't refocus it.
+      this.hiddenInput = null;
+      stale.blur();
+      stale.remove();
+    }
+
     if (!this.hiddenInput) {
       this.createHiddenInput();
     } else {
@@ -208,7 +251,9 @@ export class DirectKeyboardManager extends ManagerEventEmitter {
       this.hiddenInput.style.display = 'block';
       this.hiddenInput.style.visibility = 'visible';
 
-      // Focus synchronously - critical for iOS Safari
+      // Focus synchronously - critical for iOS Safari. (When the keyboard needed
+      // reopening with focus retained, the input was already recreated above, so a
+      // plain focus() on the fresh field now reliably shows the keyboard.)
       this.hiddenInput.focus();
 
       // Set a space placeholder and position cursor at end
@@ -343,8 +388,14 @@ export class DirectKeyboardManager extends ManagerEventEmitter {
       }
 
       if (input.value && this.inputManager) {
-        // Filter out the placeholder space before sending
-        const textToSend = input.value.replace(/^ /, '');
+        // Filter out the single placeholder space before sending. On the FIRST keystroke
+        // iOS sometimes leaves the caret before the placeholder, so the typed char lands
+        // ahead of it (value becomes "h " instead of " h"). Strip a leading space if
+        // present, otherwise a trailing one — this fixes the "h ola" (extra space after
+        // the first letter) bug without eating the user's own spaces mid-text.
+        const textToSend = input.value.startsWith(' ')
+          ? input.value.slice(1)
+          : input.value.replace(/ $/, '');
         if (textToSend) {
           // Send each character to terminal (only for non-IME input)
           this.inputManager.sendInputText(textToSend);
@@ -433,8 +484,9 @@ export class DirectKeyboardManager extends ManagerEventEmitter {
         visualViewportHandler();
       }
 
-      // Start focus retention if not already running
-      if (!this.focusRetentionInterval) {
+      // Start focus retention if not already running — but NOT while reopening the
+      // keyboard via TAP (it would re-focus mid-gesture and stop iOS showing it).
+      if (!this.focusRetentionInterval && !this.reopeningKeyboard) {
         this.startFocusRetention();
       }
     });
@@ -454,9 +506,12 @@ export class DirectKeyboardManager extends ManagerEventEmitter {
 
         // Add a small delay to allow Done button to exit keyboard mode first
         setTimeout(() => {
-          // Re-check keyboard mode after delay - Done button might have exited it
+          // Re-check keyboard mode after delay - Done button might have exited it.
+          // Skip while reopening via TAP so this doesn't re-focus the stale input and
+          // make iOS refuse to show the keyboard.
           if (
             this.keyboardMode &&
+            !this.reopeningKeyboard &&
             this.hiddenInput &&
             document.activeElement !== this.hiddenInput
           ) {
@@ -697,6 +752,10 @@ export class DirectKeyboardManager extends ManagerEventEmitter {
 
   private startFocusRetention(): void {
     this.focusRetentionInterval = setInterval(() => {
+      // While reopening via TAP, don't re-focus — let iOS show the keyboard first.
+      if (this.reopeningKeyboard) {
+        return;
+      }
       const disableFocusManagement = this.callbacks?.getDisableFocusManagement() ?? false;
       const showCtrlAlpha = this.callbacks?.getShowCtrlAlpha() ?? false;
 
@@ -726,6 +785,14 @@ export class DirectKeyboardManager extends ManagerEventEmitter {
         this.hiddenInput.focus();
       }
     }, 100) as unknown as number; // More frequent checks (100ms instead of 300ms)
+  }
+
+  private cancelKeyboardReopen(): void {
+    if (this.keyboardReopenTimeout) {
+      clearTimeout(this.keyboardReopenTimeout);
+      this.keyboardReopenTimeout = null;
+    }
+    this.reopeningKeyboard = false;
   }
 
   private delayedRefocusHiddenInput(): void {
@@ -904,6 +971,7 @@ export class DirectKeyboardManager extends ManagerEventEmitter {
     // Exit keyboard mode
     this.keyboardMode = false;
     this.keyboardModeTimestamp = 0;
+    this.cancelKeyboardReopen();
 
     // Remove capture click handler
     if (this.captureClickHandler) {
@@ -944,6 +1012,7 @@ export class DirectKeyboardManager extends ManagerEventEmitter {
 
   cleanup(): void {
     // Clear timers
+    this.cancelKeyboardReopen();
     if (this.focusRetentionInterval) {
       clearInterval(this.focusRetentionInterval);
       this.focusRetentionInterval = null;
@@ -986,6 +1055,7 @@ export class DirectKeyboardManager extends ManagerEventEmitter {
     this.keyboardMode = false;
     this.keyboardModeTimestamp = 0;
     this.showQuickKeys = false;
+    this.cancelKeyboardReopen();
 
     // Stop focus retention interval - critical to prevent refocusing
     if (this.focusRetentionInterval) {
