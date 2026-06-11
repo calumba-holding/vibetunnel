@@ -6,7 +6,7 @@
  */
 
 import chalk from 'chalk';
-import { exec } from 'child_process';
+import { exec, execFile } from 'child_process';
 import { EventEmitter, once } from 'events';
 import * as fs from 'fs';
 import * as net from 'net';
@@ -1402,38 +1402,45 @@ export class PtyManager extends EventEmitter {
     try {
       logger.log(chalk.cyan(`Detaching from tmux session (${sessionId})`));
 
-      // Try the standard detach sequence first (Ctrl-B, d)
-      await this.sendInput(sessionId, { text: '\x02d' }); // \x02 is Ctrl-B
+      const clientTty = await this.findTmuxClientTty(session.ptyProcess.pid);
+      if (!clientTty) {
+        logger.debug(`Could not find tmux client for PTY process ${session.ptyProcess.pid}`);
+        return false;
+      }
 
-      // Wait for detachment
+      // Target the VibeTunnel client only. Using `-s` would detach every client
+      // attached to the same tmux session.
+      await this.execFileAsync('tmux', ['detach-client', '-t', clientTty]);
+
       await new Promise((resolve) => setTimeout(resolve, 300));
-
-      // Check if the process is still running
       if (!ProcessUtils.isProcessRunning(session.ptyProcess.pid)) {
         logger.log(chalk.green(`Successfully detached from tmux (${sessionId})`));
         return true;
       }
 
-      // If still running, try sending the detach-client command
-      logger.debug('First detach attempt failed, trying detach-client command');
-      await this.sendInput(sessionId, { text: ':detach-client\n' });
-
-      // Wait a bit longer
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      // Final check
-      if (!ProcessUtils.isProcessRunning(session.ptyProcess.pid)) {
-        logger.log(
-          chalk.green(`Successfully detached from tmux using detach-client (${sessionId})`)
-        );
-        return true;
-      }
-
+      logger.debug(`tmux client ${clientTty} remained attached after detach-client`);
       return false;
     } catch (error) {
       logger.error(`Error detaching from tmux: ${error}`);
       return false;
     }
+  }
+
+  private async findTmuxClientTty(pid: number): Promise<string | undefined> {
+    const { stdout } = await this.execFileAsync('tmux', [
+      'list-clients',
+      '-F',
+      '#{client_pid}\t#{client_tty}',
+    ]);
+
+    for (const line of String(stdout).split(/\r?\n/)) {
+      const [clientPid, clientTty] = line.split('\t');
+      if (Number(clientPid) === pid && clientTty) {
+        return clientTty;
+      }
+    }
+
+    return undefined;
   }
 
   /**
@@ -2496,4 +2503,5 @@ export class PtyManager extends EventEmitter {
    * Import necessary exec function
    */
   private execAsync = promisify(exec);
+  private execFileAsync = promisify(execFile);
 }
