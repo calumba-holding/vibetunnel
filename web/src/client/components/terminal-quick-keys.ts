@@ -123,8 +123,8 @@ export class TerminalQuickKeys extends LitElement {
   }
 
   private getButtonSizeClass(_label: string): string {
-    // Use minimal padding to fit more buttons
-    return this.isLandscape ? 'px-0.5 py-1' : 'px-1 py-1.5';
+    // Increase touch area while preserving space for all three rows.
+    return this.isLandscape ? 'px-1 py-2' : 'px-1.5 py-2.5';
   }
 
   private getButtonFontClass(label: string): string {
@@ -418,7 +418,6 @@ export class TerminalQuickKeys extends LitElement {
         /* Arrow key styling */
         .arrow-key {
           font-size: 1rem;
-          padding: 0.375rem 0.5rem;
         }
         
         /* Medium font for short character buttons */
